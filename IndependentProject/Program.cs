@@ -1,5 +1,6 @@
 using Supabase;
 using Newtonsoft.Json;
+using YourProjectNamespace.Services; // Ensure this matches the namespace where RiotApiService is located
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -16,6 +17,16 @@ var supabaseClient = new Client(supabaseUrl, supabaseKey);
 // Register the Supabase client as a singleton service
 builder.Services.AddSingleton(supabaseClient);
 
+// Access the Riot API key from appsettings.json
+var riotApiKey = builder.Configuration["RiotApi:ApiKey"];
+
+// Register RiotApiService with Dependency Injection, passing the configuration
+builder.Services.AddSingleton<RiotApiService>(serviceProvider =>
+{
+    var configuration = serviceProvider.GetRequiredService<IConfiguration>();
+    return new RiotApiService(configuration);
+});
+
 builder.Services.AddControllers().AddNewtonsoftJson();
 
 var app = builder.Build();
@@ -24,11 +35,8 @@ var app = builder.Build();
 if (!app.Environment.IsDevelopment())
 {
     app.UseExceptionHandler("/Home/Error");
-    // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
     app.UseHsts();
 }
-
-
 
 app.UseHttpsRedirection();
 app.UseStaticFiles();
