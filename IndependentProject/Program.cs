@@ -18,14 +18,8 @@ var supabaseClient = new Client(supabaseUrl, supabaseKey);
 builder.Services.AddSingleton(supabaseClient);
 
 // Access the Riot API key from appsettings.json
-var riotApiKey = builder.Configuration["RiotApi:ApiKey"];
+//var riotApiKey = builder.Configuration["RiotApi:ApiKey"];
 
-// Register RiotApiService with Dependency Injection, passing the configuration
-builder.Services.AddSingleton<RiotApiService>(serviceProvider =>
-{
-    var configuration = serviceProvider.GetRequiredService<IConfiguration>();
-    return new RiotApiService(configuration);
-});
 
 builder.Services.AddControllers().AddNewtonsoftJson();
 
