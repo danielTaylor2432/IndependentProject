@@ -5,7 +5,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Movie and TV Show List</title>
+    <title>Movie List</title>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -41,65 +41,42 @@
         .filter-container {
             margin-bottom: 20px;
         }
-
-        .selected-filters {
-            margin-top: 20px;
-            padding: 10px;
-            border: 1px solid #ccc;
-            border-radius: 5px;
-            background-color: #f9f9f9;
-        }
-
-            .selected-filters h3 {
-                margin: 0;
-                font-size: 1.2em;
-            }
     </style>
 </head>
 <body>
 
-    <h1>Movie and TV Show List</h1>
+    <h1>Movie List</h1>
 
     <div class="filter-container">
-        <input type="text" id="titleFilter" placeholder="Search by Title" value="@ViewBag.SearchTitle" />
-
-        <select id="typeFilter">
-            <option value="">Select Type</option>
-            <option value="Movie" @(ViewBag.SelectedType == "Movie" ? "selected" : "")>Movie</option>
-            <option value="TV Show" @(ViewBag.SelectedType == "TV Show" ? "selected" : "")>TV Show</option>
-        </select>
-
-        <select id="yearFilter">
-            <option value="">Select Release Year</option>
+        <input type="text" id="titleFilter" placeholder="Search by Title" value="@ViewData["SearchTitle"]" />
+        <select id="yearFilter" onchange="filterMovies()">
+            <option value="">Select Year</option>
             @foreach (var year in ViewBag.Years)
             {
-                <option value="@year" @(ViewBag.SelectedYear == year ? "selected" : "")>@year</option>
+                <option value="@year" @(year.ToString() == ViewData["ReleaseYear"]?.ToString() ? "selected" : "")>@year</option>
             }
         </select>
-
-        <select id="ratingFilter">
+        <select id="ratingFilter" onchange="filterMovies()">
             <option value="">Select Rating</option>
             @foreach (var rating in ViewBag.Ratings)
             {
-                <option value="@rating" @(ViewBag.SelectedRating == rating ? "selected" : "")>@rating</option>
+                <option value="@rating" @(rating == ViewData["Rating"]?.ToString() ? "selected" : "")>@rating</option>
             }
         </select>
-
+        <select id="typeFilter" onchange="filterMovies()">
+            <option value="">Select Type</option>
+            @foreach (var type in ViewBag.Types)
+            {
+                <option value="@type" @(type == ViewData["Type"]?.ToString() ? "selected" : "")>@type</option>
+            }
+        </select>
         <button onclick="filterMovies()">Filter</button>
-        <button onclick="clearFilters()">Clear Filters</button> <!-- Clear Filters Button -->
-    </div>
-
-    <div class="selected-filters">
-        <h3>Selected Filters:</h3>
-        <p><strong>Title:</strong> @ViewBag.SearchTitle</p>
-        <p><strong>Type:</strong> @(string.IsNullOrEmpty(ViewBag.SelectedType) ? "All" : ViewBag.SelectedType)</p>
-        <p><strong>Release Year:</strong> @(ViewBag.SelectedYear ?? "All")</p>
-        <p><strong>Rating:</strong> @(string.IsNullOrEmpty(ViewBag.SelectedRating) ? "All" : ViewBag.SelectedRating)</p>
+        <button onclick="clearFilters()">Clear Filters</button>
     </div>
 
     @if (!Model.Any())
     {
-        <p>No movies or TV shows available to display.</p>
+        <p>No movies available to display.</p>
     }
     else
     {
@@ -117,6 +94,8 @@
                     <p><span class="label">Duration:</span> <span class="value">@movie.Duration</span></p>
                     <p><span class="label">Category:</span> <span class="value">@movie.ListedIn</span></p>
                     <p><span class="label">Description:</span> <span class="value">@movie.Description</span></p>
+                    <!-- Link to add a review -->
+                    <a href="@Url.Action("Create", "Review", new { movieId = movie.ShowId })">Add Review</a>
                 </div>
             }
         </div>
@@ -125,17 +104,14 @@
     <script>
         function filterMovies() {
             const title = document.getElementById('titleFilter').value;
-            const type = document.getElementById('typeFilter').value;
             const year = document.getElementById('yearFilter').value;
             const rating = document.getElementById('ratingFilter').value;
+            const type = document.getElementById('typeFilter').value;
 
             // Build the query string
             let query = '';
             if (title) {
                 query += `searchTitle=${encodeURIComponent(title)}&`;
-            }
-            if (type) {
-                query += `type=${encodeURIComponent(type)}&`;
             }
             if (year) {
                 query += `releaseYear=${encodeURIComponent(year)}&`;
@@ -143,13 +119,21 @@
             if (rating) {
                 query += `rating=${encodeURIComponent(rating)}&`;
             }
+            if (type) {
+                query += `type=${encodeURIComponent(type)}&`;
+            }
 
             // Redirect to the same page with the query string
             window.location.href = `@Url.Action("Index", "Home")?${query}`;
         }
 
         function clearFilters() {
-            // Redirect to the Index action without any filters
+            document.getElementById('titleFilter').value = '';
+            document.getElementById('yearFilter').value = '';
+            document.getElementById('ratingFilter').value = '';
+            document.getElementById('typeFilter').value = '';
+
+            // Redirect to the Index action to clear query parameters
             window.location.href = '@Url.Action("Index", "Home")';
         }
     </script>

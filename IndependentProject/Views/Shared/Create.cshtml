@@ -1,0 +1,37 @@
+﻿@model Ratings
+
+<h2>Add a Review</h2>
+
+@if (!string.IsNullOrEmpty(ViewBag.ErrorMessage))
+{
+    <div class="alert alert-danger">@ViewBag.ErrorMessage</div>
+}
+
+<form asp-action="Create" method="post">
+    <input type="hidden" asp-for="ShowId" />
+    <input type="hidden" asp-for="UserId" />
+
+    <div>
+        <label for="Rating">Rating (out of 10):</label>
+        <input asp-for="Ratings" type="number" min="0" max="10" />
+        <span asp-validation-for="Rating" class="text-danger"></span>
+    </div>
+
+    <div>
+        <label for="Recommend">Recommend (Yes/No or other):</label>
+        <input asp-for="Recommend" type="text" />
+        <span asp-validation-for="Recommend" class="text-danger"></span>
+    </div>
+
+    <div>
+        <label for="Description">Description:</label>
+        <textarea asp-for="Description"></textarea>
+        <span asp-validation-for="Description" class="text-danger"></span>
+    </div>
+
+    <button type="submit">Submit Review</button>
+</form>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}
