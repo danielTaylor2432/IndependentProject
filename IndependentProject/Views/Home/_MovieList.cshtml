@@ -1,0 +1,26 @@
+﻿@model IEnumerable<Movies>
+
+@if (!Model.Any())
+{
+    <p>No movies available to display.</p>
+}
+else
+{
+    <div id="movieList">
+        @foreach (var movie in Model)
+        {
+            <div class="movie-details">
+                <h2>@movie.Title (@movie.ReleaseYear)</h2>
+                <p><span class="label">Type:</span> <span class="value">@movie.Type</span></p>
+                <p><span class="label">Director:</span> <span class="value">@movie.Director</span></p>
+                <p><span class="label">Cast:</span> <span class="value">@movie.Cast</span></p>
+                <p><span class="label">Country:</span> <span class="value">@movie.Country</span></p>
+                <p><span class="label">Date Added:</span> <span class="value">@movie.DateAdded</span></p>
+                <p><span class="label">Rating:</span> <span class="value">@movie.Rating</span></p>
+                <p><span class="label">Duration:</span> <span class="value">@movie.Duration</span></p>
+                <p><span class="label">Category:</span> <span class="value">@movie.ListedIn</span></p>
+                <p><span class="label">Description:</span> <span class="value">@movie.Description</span></p>
+            </div>
+        }
+    </div>
+}
