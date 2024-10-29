@@ -1,0 +1,79 @@
+﻿@model MovieWithRatingsViewModel
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>@Model.Movie.Title</title>
+    <style>
+        .container {
+            display: flex;
+            justify-content: space-between;
+            padding: 20px;
+        }
+
+        .movie-info {
+            width: 60%;
+            background-color: #f9f9f9;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .reviews {
+            width: 35%;
+            padding: 20px;
+            background-color: #ecf0f1;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .review-item {
+            margin-bottom: 15px;
+            padding: 10px;
+            background-color: #ffffff;
+            border-radius: 4px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Movie Information -->
+        <div class="movie-info">
+            <h1>@Model.Movie.Title (@Model.Movie.ReleaseYear)</h1>
+            <p><strong>Type:</strong> @Model.Movie.Type</p>
+            <p><strong>Director:</strong> @Model.Movie.Director</p>
+            <p><strong>Cast:</strong> @Model.Movie.Cast</p>
+            <p><strong>Country:</strong> @Model.Movie.Country</p>
+            <p><strong>Date Added:</strong> @Model.Movie.DateAdded</p>
+            <p><strong>Rating:</strong> @Model.Movie.Rating</p>
+            <p><strong>Duration:</strong> @Model.Movie.Duration</p>
+            <p><strong>Category:</strong> @Model.Movie.ListedIn</p>
+            <p><strong>Description:</strong> @Model.Movie.Description</p>
+        </div>
+
+        <!-- Reviews Section -->
+        <div class="reviews">
+            <h2>User Reviews</h2>
+            @if (Model.Ratings.Any())
+            {
+                @foreach (var review in Model.Ratings)
+                {
+                    <div class="review-item">
+                        <p><strong>User:</strong> @review.UserId</p>
+                        <p><strong>Rating:</strong> @review.Rating / 5</p>
+                        <p><strong>Recommend:</strong> @review.Recommend</p>
+                        <p><strong>Comment:</strong> @review.Description</p>
+                    </div>
+                }
+            }
+            else
+            {
+                <p>No reviews available for this movie.</p>
+            }
+        </div>
+    </div>
+</body>
+</html>

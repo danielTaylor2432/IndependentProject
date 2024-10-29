@@ -5,6 +5,7 @@ using Supabase.Postgrest.Models;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using static Supabase.Postgrest.Constants;
 
 public class HomeController : Controller
 {
@@ -80,6 +81,39 @@ public class HomeController : Controller
             ViewBag.ErrorMessage = ex.Message;
             return View("Error");
         }
+    }
+
+    public async Task<IActionResult> Details(string id)
+    {
+        // Retrieve the movie based on the ShowId
+        var movieResponse = await _supabaseClient
+            .From<Movies>()
+            .Filter("show_id", Operator.Equals, id)
+            .Get();
+
+        var movie = movieResponse.Models.FirstOrDefault();
+
+        if (movie == null)
+        {
+            return NotFound("Movie not found.");
+        }
+
+        // Retrieve reviews for this movie
+        var reviewResponse = await _supabaseClient
+            .From<Ratings>()
+            .Filter("Show_Id", Operator.Equals, id)
+            .Get();
+
+        var reviews = reviewResponse.Models;
+
+        // Pass the movie and reviews data to the view
+        var viewModel = new MovieWithRatingsViewModel
+        {
+            Movie = movie,
+            Ratings = reviews
+        };
+
+        return View(viewModel);
     }
 
 

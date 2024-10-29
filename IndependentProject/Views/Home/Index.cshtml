@@ -225,47 +225,37 @@
                         var movie = item.Movie;
                         var ratings = item.Ratings;
 
-                        <div class="movie-details">
-                            <h2>@movie.Title (@movie.ReleaseYear)</h2>
-                            <p><span class="label">Type:</span> <span class="value">@movie.Type</span></p>
-                            <p><span class="label">Director:</span> <span class="value">@movie.Director</span></p>
-                            <p><span class="label">Cast:</span> <span class="value">@movie.Cast</span></p>
-                            <p><span class="label">Country:</span> <span class="value">@movie.Country</span></p>
-                            <p><span class="label">Date Added:</span> <span class="value">@movie.DateAdded</span></p>
-                            <p><span class="label">Rating:</span> <span class="value">@movie.Rating</span></p>
-                            <p><span class="label">Duration:</span> <span class="value">@movie.Duration</span></p>
-                            <p><span class="label">Category:</span> <span class="value">@movie.ListedIn</span></p>
-                            <p><span class="label">Description:</span> <span class="value">@movie.Description</span></p>
+                        <!-- Wrapping the entire movie box in an anchor tag -->
+                        <a href="@Url.Action("Details", "Home", new { id = movie.ShowId })" style="text-decoration: none; color: inherit;">
+                            <div class="movie-details">
+                                <h2>@movie.Title (@movie.ReleaseYear)</h2>
+                                <p><span class="label">Type:</span> <span class="value">@movie.Type</span></p>
+                                <p><span class="label">Director:</span> <span class="value">@movie.Director</span></p>
+                                <p><span class="label">Cast:</span> <span class="value">@movie.Cast</span></p>
+                                <p><span class="label">Country:</span> <span class="value">@movie.Country</span></p>
+                                <p><span class="label">Date Added:</span> <span class="value">@movie.DateAdded</span></p>
+                                <p><span class="label">Rating:</span> <span class="value">@movie.Rating</span></p>
+                                <p><span class="label">Duration:</span> <span class="value">@movie.Duration</span></p>
+                                <p><span class="label">Category:</span> <span class="value">@movie.ListedIn</span></p>
+                                <p><span class="label">Description:</span> <span class="value">@movie.Description</span></p>
 
-                            <!-- Ratings Section -->
-                            <div class="ratings-section">
-                                <h4>Average User Rating:</h4>
-                                @if (ratings.Any())
-                                {
-                                    <p>@(ratings.Average(r => r.Rating)) / 5</p>
-                                    <h4>User Reviews:</h4>
-                                    @foreach (var rating in ratings)
+                                <!-- Ratings Section -->
+                                <div class="ratings-section">
+                                    <h4>Average User Rating:</h4>
+                                    @if (ratings.Any())
                                     {
-                                        <div class="review">
-                                            <p><span class="label">User:</span> @rating.UserId</p>
-                                            <p><span class="label">Rating:</span> @rating.Rating / 5</p>
-                                            <p><span class="label">Recommend:</span> @rating.Recommend</p>
-                                            <p><span class="label">Comment:</span> @rating.Description</p>
-                                        </div>
-                                        <hr />
+                                        <p>@(ratings.Average(r => r.Rating)) / 5</p>
                                     }
-                                }
-                                else
-                                {
-                                    <p class="no-reviews">No ratings yet.</p>
-                                }
+                                    else
+                                    {
+                                        <p class="no-reviews">No ratings yet.</p>
+                                    }
+                                </div>
                             </div>
-
-                            <!-- Link to add a review -->
-                            <a href="@Url.Action("Create", "Review", new { movieId = movie.ShowId })">Add Review</a>
-                        </div>
+                        </a>
                     }
                 </div>
+
             }
         </div>
     </div>
