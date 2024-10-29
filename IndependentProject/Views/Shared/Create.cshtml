@@ -9,11 +9,16 @@
 
 <form asp-action="Create" method="post">
     <input type="hidden" asp-for="ShowId" />
-    <input type="hidden" asp-for="UserId" />
+
+    <div>
+        <label for="UserId">UserName:</label>
+        <input asp-for="UserId" type="text" />
+        <span asp-validation-for="UserId" class="text-danger"></span>
+    </div>
 
     <div>
         <label for="Rating">Rating (out of 10):</label>
-        <input asp-for="Ratings" type="number" min="0" max="10" />
+        <input asp-for="Rating" type="number" min="0" max="10" />
         <span asp-validation-for="Rating" class="text-danger"></span>
     </div>
 
@@ -25,7 +30,7 @@
 
     <div>
         <label for="Description">Description:</label>
-        <textarea asp-for="Description"></textarea>
+        <input asp-for="Description" type="text" />
         <span asp-validation-for="Description" class="text-danger"></span>
     </div>
 

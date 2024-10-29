@@ -25,41 +25,36 @@ public class ReviewController : Controller
             return View("Error");
         }
 
-        // Hardcoded UserId and setting ShowId (movieId)
-        /*var Ratings = new Ratings
+        // Initialize the Ratings model with the movie ID
+        var model = new Ratings
         {
-            ShowId = movieId,
-            UserId = 1  // Hardcoded UserId for now
+            ShowId = movieId
+        };
 
-        };*/
-
-        return View();  // Pass the initialized Ratings model to the view
+        return View(model);  // Pass the model to the view
     }
+
 
     // POST action to submit the review
     [HttpPost]
-    public async Task<IActionResult> Create(string movieId, int rating, string recommend, string description)
+    public async Task<IActionResult> Create(Ratings ratings)
     {
         try
         {
-            // Create a new review
-            var Ratings = new Ratings
+            Console.WriteLine($"ShowId: {ratings.ShowId}, UserId: {ratings.UserId}, Rating: {ratings.Rating}, Recommend: {ratings.Recommend}, Description: {ratings.Description}");
+            // Ensure ShowId and UserId are valid
+            if (string.IsNullOrEmpty(ratings.ShowId) || string.IsNullOrEmpty(ratings.UserId))
             {
-                //RatingID = 1,
-                ShowId = movieId,
-                UserId = 1,
-                Rating = 3,
-                Recommend = "hi",
-                Description = "oii"
-            };
-            
-            Console.WriteLine($"Inserting Review: RatingId={Ratings.RatingID},ShowId={Ratings.ShowId}, UserId={Ratings.UserId}, Rating={Ratings.Rating}, Recommend={Ratings.Recommend}, Description={Ratings.Description}");
+                ViewBag.ErrorMessage = "Movie ID or User ID is missing.";
+                return View("Error");
+            }
 
-            var response = await _supabaseClient.From<Ratings>().Insert(Ratings);
+            // Insert the new review
+            var response = await _supabaseClient.From<Ratings>().Insert(ratings);
 
-            if (response != null)
+            if (response != null && response.Models.Any())
             {
-                return RedirectToAction("Index", "Home"); 
+                return RedirectToAction("Index", "Home");
             }
             else
             {
@@ -69,10 +64,12 @@ public class ReviewController : Controller
         }
         catch (Exception ex)
         {
-            ViewBag.ErrorMessage = ex.Message;
+            ViewBag.ErrorMessage = $"An error occurred: {ex.Message}";
             return View("Error");
         }
     }
+
+
 
 
 }

@@ -1,0 +1,20 @@
+﻿@model IEnumerable<Ratings>
+
+@if (Model.Any())
+{
+    <h4>User Reviews:</h4>
+    @foreach (var rating in Model)
+    {
+        <div>
+            <p><b>User:</b> @rating.UserId</p>
+            <p><b>Rating:</b> @rating.Rating / 5</p>
+            <p><b>Recommend:</b> @rating.Recommend</p>
+            <p><b>Comment:</b> @rating.Description</p>
+        </div>
+        <hr />
+    }
+}
+else
+{
+    <p>No reviews yet.</p>
+}

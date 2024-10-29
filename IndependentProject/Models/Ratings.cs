@@ -7,8 +7,8 @@ public class Ratings : BaseModel
     [PrimaryKey("Rating_Id")]
     public int RatingID { get; set; }
 
-    [Column("User_id")]
-    public int UserId { get; set; }  // Foreign key linking to the user
+    [Column("UserId")]
+    public string UserId { get; set; }  // Foreign key linking to the user
 
     [Column("Show_Id")]
     public string ShowId { get; set; }  // Foreign key linking to the movie
