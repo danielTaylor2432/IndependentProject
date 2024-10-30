@@ -37,17 +37,33 @@ public class ReviewController : Controller
 
     // POST action to submit the review
     [HttpPost]
-    public async Task<IActionResult> Create(Ratings ratings)
+    public async Task<IActionResult> Create(
+    int ratingID,
+    string showId,
+    string userId,
+    int rating,
+    string recommend,
+    string description)
     {
+        Console.WriteLine($"ShowId: {showId}, RatingID: {ratingID}, UserId: {userId}, Rating: {rating}, Recommend: {recommend}, Description: {description}");
+
+        if (string.IsNullOrEmpty(showId) || string.IsNullOrEmpty(userId))
+        {
+            ViewBag.ErrorMessage = "Movie ID or User ID is missing.";
+            return View("Error");
+        }
+
         try
         {
-            Console.WriteLine($"ShowId: {ratings.ShowId}, UserId: {ratings.UserId}, Rating: {ratings.Rating}, Recommend: {ratings.Recommend}, Description: {ratings.Description}");
-            // Ensure ShowId and UserId are valid
-            if (string.IsNullOrEmpty(ratings.ShowId) || string.IsNullOrEmpty(ratings.UserId))
+            // Create a new Ratings instance with the parameters
+            var ratings = new Ratings
             {
-                ViewBag.ErrorMessage = "Movie ID or User ID is missing.";
-                return View("Error");
-            }
+                ShowId = showId,
+                UserId = userId,
+                Rating = rating,
+                Recommend = recommend,
+                Description = description
+            };
 
             // Insert the new review
             var response = await _supabaseClient.From<Ratings>().Insert(ratings);
@@ -68,6 +84,7 @@ public class ReviewController : Controller
             return View("Error");
         }
     }
+
 
 
 
