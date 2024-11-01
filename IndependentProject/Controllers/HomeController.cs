@@ -17,7 +17,7 @@ public class HomeController : Controller
     }
 
     // Method to display all data from the NetflixShow table with filtering
-    public async Task<IActionResult> Index(string searchTitle = "", int? releaseYear = null, string rating = "", string type = "")
+    public async Task<IActionResult> Index(string searchTitle = "", int? releaseYear = null, string rating = "", string type = "", int pageNumber = 1, int pageSize = 20)
     {
         try
         {
@@ -46,6 +46,12 @@ public class HomeController : Controller
                 movies = movies.Where(m => m.Type.Equals(type, StringComparison.OrdinalIgnoreCase));
             }
 
+            // Get the total count of filtered movies for pagination
+            int totalMovies = movies.Count();
+
+            // Apply pagination
+            movies = movies.Skip((pageNumber - 1) * pageSize).Take(pageSize);
+
             // Convert movies to a list so we can work with it
             var movieList = movies.ToList();
 
@@ -69,10 +75,15 @@ public class HomeController : Controller
                 Ratings = ratingsByShowId.ContainsKey(movie.ShowId) ? ratingsByShowId[movie.ShowId] : new List<Ratings>()
             }).ToList();
 
-            // Pass the ViewModel list to the view
+            // Calculate total pages for pagination
+            int totalPages = (int)Math.Ceiling(totalMovies / (double)pageSize);
+
+            // Pass data to the view
             ViewBag.Years = response.Models?.Select(m => m.ReleaseYear).Distinct().OrderBy(y => y).ToList();
             ViewBag.Ratings = response.Models?.Select(m => m.Rating).Distinct().OrderBy(r => r).ToList();
             ViewBag.Types = response.Models?.Select(m => m.Type).Distinct().OrderBy(t => t).ToList();
+            ViewBag.CurrentPage = pageNumber;
+            ViewBag.TotalPages = totalPages;
 
             return View(movieWithRatingsList);  // Pass the ViewModel list to the view
         }
@@ -82,6 +93,7 @@ public class HomeController : Controller
             return View("Error");
         }
     }
+
 
     public async Task<IActionResult> Details(string id)
     {
