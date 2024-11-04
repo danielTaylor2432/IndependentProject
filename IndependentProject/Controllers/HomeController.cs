@@ -17,7 +17,7 @@ public class HomeController : Controller
     }
 
     // Method to display all data from the NetflixShow table with filtering
-    public async Task<IActionResult> Index(string searchTitle = "", int? releaseYear = null, string rating = "", string type = "", int pageNumber = 1, int pageSize = 20)
+    /*public async Task<IActionResult> Index(string searchTitle = "", int? releaseYear = null, string rating = "", string type = "", int pageNumber = 1, int pageSize = 20)
     {
         try
         {
@@ -92,7 +92,38 @@ public class HomeController : Controller
             ViewBag.ErrorMessage = ex.Message;
             return View("Error");
         }
+    }*/
+
+    public async Task<IActionResult> Index()
+    {
+        // Fetch latest movies
+        var moviesResponse = await _supabaseClient.From<Movies>()
+            .Filter("type", Operator.Equals, "Movie")
+            .Order("release_year", Ordering.Descending)
+            .Limit(10) // Adjust to show the number of latest movies you want
+            .Get();
+
+        var latestMovies = moviesResponse.Models;
+
+        // Fetch latest TV shows
+        var tvShowsResponse = await _supabaseClient.From<Movies>()
+            .Filter("type", Operator.Equals, "TV Show")
+            .Order("release_year", Ordering.Descending)
+            .Limit(10) // Adjust to show the number of latest TV shows you want
+            .Get();
+
+        var latestTvShows = tvShowsResponse.Models;
+
+        // Pass the lists to the view
+        var viewModel = new LatestContentViewModel
+        {
+            LatestMovies = latestMovies,
+            LatestTvShows = latestTvShows
+        };
+
+        return View(viewModel);
     }
+
 
 
     public async Task<IActionResult> Details(string id)

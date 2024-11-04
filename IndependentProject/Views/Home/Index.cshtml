@@ -1,320 +1,81 @@
-﻿@model IEnumerable<MovieWithRatingsViewModel>
+﻿@model LatestContentViewModel
 
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Movie List</title>
+    <title>IndependentProject - Latest Content</title>
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
     <style>
-        body {
-            font-family: Arial, sans-serif;
-            margin: 0;
-            padding: 0;
-            background-color: #f4f6f8;
-        }
-
-        /* Header Navigation */
-        .header {
-            width: 100%;
-            background-color: #2c3e50;
-            color: white;
-            padding: 10px 20px;
+        .latest-content-container {
             display: flex;
-            align-items: center;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-            position: fixed;
-            top: 0;
-            left: 0;
-            z-index: 1000;
-            height: 60px;
-        }
-
-            .header h1 {
-                margin: 0;
-                font-size: 1.5em;
-                flex: 1;
-            }
-
-            .header nav {
-                display: flex;
-                gap: 15px;
-            }
-
-                .header nav a {
-                    color: #ecf0f1;
-                    text-decoration: none;
-                    font-size: 1em;
-                }
-
-                    .header nav a:hover {
-                        color: #bdc3c7;
-                    }
-
-        /* Main layout below the header */
-        .main-container {
-            display: flex;
-            margin-top: 60px;
-        }
-
-        /* Sidebar filter container */
-        .filter-container {
-            width: 250px;
+            gap: 20px;
             padding: 20px;
-            background-color: #ecf0f1;
-            border-right: 1px solid #ddd;
-            position: fixed;
-            top: 60px;
-            left: 0;
-            height: calc(100vh - 60px);
-            overflow-y: auto;
-            box-shadow: 2px 0 6px rgba(0, 0, 0, 0.1);
         }
 
-            .filter-container h2 {
-                color: #34495e;
-                font-size: 1.2em;
+        .latest-column {
+            flex: 1;
+            background-color: #f4f4f4;
+            padding: 15px;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+
+            .latest-column h2 {
+                color: #2c3e50;
                 margin-bottom: 15px;
             }
 
-            .filter-container input, .filter-container select {
-                width: 100%;
-                padding: 8px;
-                margin-bottom: 10px;
-                border: 1px solid #bdc3c7;
-                border-radius: 4px;
-            }
-
-                .filter-container input:focus, .filter-container select:focus {
-                    border-color: #3498db;
-                    outline: none;
-                    box-shadow: 0 0 5px rgba(52, 152, 219, 0.4);
-                }
-
-        /* Content container for movies */
-        .content-container {
-            flex: 1;
-            margin-left: 270px;
-            padding: 20px;
-            max-width: 1200px;
-        }
-
-        /* Movie list styles */
-        .movie-details {
-            border: 1px solid #ddd;
-            border-radius: 8px;
-            padding: 20px;
-            margin-bottom: 20px;
-            background-color: #ffffff;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.05);
-        }
-
-            .movie-details h2 {
-                margin-bottom: 10px;
-                color: #2c3e50;
-                font-size: 1.5em;
-            }
-
-            .movie-details p {
-                margin: 5px 0;
-                color: #34495e;
-            }
-
-        .label {
-            font-weight: bold;
-            color: #7f8c8d;
-        }
-
-        .value {
-            color: #2c3e50;
-        }
-
-        .ratings-section {
-            margin-top: 15px;
-            padding-top: 10px;
-            border-top: 1px solid #ddd;
-        }
-
-            .ratings-section h4 {
-                color: #2c3e50;
-                margin-bottom: 8px;
-            }
-
-        .review {
+        .movie-item, .tv-show-item {
             margin-bottom: 10px;
             padding: 10px;
-            background-color: #ecf0f1;
-            border-radius: 4px;
+            background-color: #ffffff;
+            border-radius: 5px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
         }
 
-            .review p {
-                margin: 5px 0;
+            .movie-item h3, .tv-show-item h3 {
+                margin: 0;
+                font-size: 1.1em;
                 color: #34495e;
             }
 
-        .no-reviews {
-            color: #95a5a6;
-            font-style: italic;
-        }
-
-        /* Pagination styles */
-        .pagination-controls {
-            text-align: center;
-            margin-top: 20px;
-        }
-
-            .pagination-controls a {
-                margin: 0 10px;
-                padding: 5px 10px;
-                color: #3498db;
-                text-decoration: none;
-                border: 1px solid #ddd;
-                border-radius: 5px;
-            }
-
-                .pagination-controls a:hover {
-                    background-color: #f0f0f0;
-                }
-
-            .pagination-controls span {
-                margin: 0 10px;
-                padding: 5px 10px;
-                color: #333;
+            .movie-item p, .tv-show-item p {
+                margin: 5px 0;
+                color: #7f8c8d;
             }
     </style>
 </head>
 <body>
-
-    <!-- Header Navigation Bar -->
-    <div class="header">
-        <h1>IndependentProject</h1>
-        <nav>
-            <a href="#">Home</a>
-            <a href="#">Privacy</a>
-        </nav>
-    </div>
-
-    <!-- Main Content with Sidebar and Movie List -->
-    <div class="main-container">
-
-        <!-- Filter Controls Sidebar -->
-        <div class="filter-container">
-            <h2>Filters</h2>
-            <input type="text" id="searchInput" placeholder="Search by title..." onkeyup="filterMovies()" />
-            <select id="typeFilter" onchange="filterMovies()">
-                <option value="">All Types</option>
-                @foreach (var type in ViewBag.Types)
-                {
-                    <option value="@type">@type</option>
-                }
-            </select>
-            <select id="yearFilter" onchange="filterMovies()">
-                <option value="">All Years</option>
-                @foreach (var year in ViewBag.Years)
-                {
-                    <option value="@year">@year</option>
-                }
-            </select>
-            <select id="ratingFilter" onchange="filterMovies()">
-                <option value="">All Ratings</option>
-                @foreach (var rating in ViewBag.Ratings)
-                {
-                    <option value="@rating">@rating</option>
-                }
-            </select>
+    <div class="latest-content-container">
+        <!-- Latest Movies Column -->
+        <div class="latest-column">
+            <h2>Latest Movies</h2>
+            @foreach (var movie in Model.LatestMovies)
+            {
+                <div class="movie-item">
+                    <h3>@movie.Title (@movie.ReleaseYear)</h3>
+                    <p><strong>Director:</strong> @movie.Director</p>
+                    <p><strong>Genre:</strong> @movie.ListedIn</p>
+                    <p><strong>Description:</strong> @movie.Description</p>
+                </div>
+            }
         </div>
 
-        <!-- Movie List Content Area -->
-        <div class="content-container">
-            <h1>Movie List</h1>
-
-            @if (!Model.Any())
+        <!-- Latest TV Shows Column -->
+        <div class="latest-column">
+            <h2>Latest TV Shows</h2>
+            @foreach (var show in Model.LatestTvShows)
             {
-                <p>No movies available to display.</p>
-            }
-            else
-            {
-                <div id="movieList">
-                    @foreach (var item in Model)
-                    {
-                        var movie = item.Movie;
-                        var ratings = item.Ratings;
-
-                        <a href="@Url.Action("Details", "Home", new { id = movie.ShowId })" style="text-decoration: none; color: inherit;">
-                            <div class="movie-details">
-                                <h2>@movie.Title (@movie.ReleaseYear)</h2>
-                                <p><span class="label">Type:</span> <span class="value">@movie.Type</span></p>
-                                <p><span class="label">Director:</span> <span class="value">@movie.Director</span></p>
-                                <p><span class="label">Cast:</span> <span class="value">@movie.Cast</span></p>
-                                <p><span class="label">Country:</span> <span class="value">@movie.Country</span></p>
-                                <p><span class="label">Date Added:</span> <span class="value">@movie.DateAdded</span></p>
-                                <p><span class="label">Rating:</span> <span class="value">@movie.Rating</span></p>
-                                <p><span class="label">Duration:</span> <span class="value">@movie.Duration</span></p>
-                                <p><span class="label">Category:</span> <span class="value">@movie.ListedIn</span></p>
-                                <p><span class="label">Description:</span> <span class="value">@movie.Description</span></p>
-
-                                <!-- Ratings Section -->
-                                <div class="ratings-section">
-                                    <h4>Average User Rating:</h4>
-                                    @if (ratings.Any())
-                                    {
-                                        <p>@(ratings.Average(r => r.Rating)) / 5</p>
-                                    }
-                                    else
-                                    {
-                                        <p class="no-reviews">No ratings yet.</p>
-                                    }
-                                </div>
-                            </div>
-                        </a>
-                    }
-                </div>
-
-                <!-- Pagination Controls -->
-                <div class="pagination-controls">
-                    @if (ViewBag.CurrentPage > 1)
-                    {
-                        <a href="@Url.Action("Index", new { pageNumber = ViewBag.CurrentPage - 1 })">Previous</a>
-                    }
-
-                    <span>Page @ViewBag.CurrentPage of @ViewBag.TotalPages</span>
-
-                    @if (ViewBag.CurrentPage < ViewBag.TotalPages)
-                    {
-                        <a href="@Url.Action("Index", new { pageNumber = ViewBag.CurrentPage + 1 })">Next</a>
-                    }
+                <div class="tv-show-item">
+                    <h3>@show.Title (@show.ReleaseYear)</h3>
+                    <p><strong>Director:</strong> @show.Director</p>
+                    <p><strong>Genre:</strong> @show.ListedIn</p>
+                    <p><strong>Description:</strong> @show.Description</p>
                 </div>
             }
         </div>
     </div>
-
-    <script>
-        function filterMovies() {
-            var searchTitle = document.getElementById("searchInput").value.toLowerCase();
-            var selectedType = document.getElementById("typeFilter").value;
-            var selectedYear = document.getElementById("yearFilter").value;
-            var selectedRating = document.getElementById("ratingFilter").value;
-
-            var movies = document.getElementsByClassName("movie-details");
-
-            for (var i = 0; i < movies.length; i++) {
-                var movie = movies[i];
-                var movieTitle = movie.querySelector("h2").innerText.toLowerCase();
-                var movieType = movie.querySelector(".value").innerText;
-                var movieYear = movieTitle.match(/\((\d{4})\)/) ? movieTitle.match(/\((\d{4})\)/)[1] : "";
-                var movieRating = movie.querySelector(".value").innerText;
-
-                // Check if movie matches the title and filter values
-                var titleMatch = !searchTitle || movieTitle.includes(searchTitle);
-                var typeMatch = !selectedType || movieType === selectedType;
-                var yearMatch = !selectedYear || movieYear === selectedYear;
-                var ratingMatch = !selectedRating || movieRating === selectedRating;
-
-                // Display the movie if it matches all filters; otherwise, hide it
-                movie.style.display = (titleMatch && typeMatch && yearMatch && ratingMatch) ? "block" : "none";
-            }
-        }
-    </script>
-
 </body>
 </html>
