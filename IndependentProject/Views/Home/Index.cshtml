@@ -5,77 +5,85 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>IndependentProject - Latest Content</title>
+    <title>IndependentProject - Most Popular Content</title>
     <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
     <style>
-        .latest-content-container {
-            display: flex;
-            gap: 20px;
-            padding: 20px;
-        }
-
-        .latest-column {
-            flex: 1;
-            background-color: #f4f4f4;
+        .content-main {
+            background-color: #ffffff;
             padding: 15px;
             border-radius: 8px;
             box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            margin-bottom: 20px;
         }
-
-            .latest-column h2 {
-                color: #2c3e50;
-                margin-bottom: 15px;
-            }
 
         .movie-item, .tv-show-item {
-            margin-bottom: 10px;
-            padding: 10px;
             background-color: #ffffff;
+            padding: 15px;
             border-radius: 5px;
             box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            transition: transform 0.2s;
+            margin-bottom: 15px;
         }
 
-            .movie-item h3, .tv-show-item h3 {
-                margin: 0;
-                font-size: 1.1em;
-                color: #34495e;
-            }
+        .movie-item:hover, .tv-show-item:hover {
+            transform: scale(1.02);
+        }
 
-            .movie-item p, .tv-show-item p {
-                margin: 5px 0;
-                color: #7f8c8d;
-            }
+        .movie-item h3, .tv-show-item h3 {
+            font-size: 1.2em;
+            color: #34495e;
+            margin: 0;
+        }
+
+        .movie-item p, .tv-show-item p {
+            margin: 5px 0;
+            color: #7f8c8d;
+        }
     </style>
 </head>
 <body>
-    <div class="latest-content-container">
-        <!-- Latest Movies Column -->
-        <div class="latest-column">
-            <h2>Latest Movies</h2>
-            @foreach (var movie in Model.LatestMovies)
-            {
-                <div class="movie-item">
-                    <h3>@movie.Title (@movie.ReleaseYear)</h3>
-                    <p><strong>Director:</strong> @movie.Director</p>
-                    <p><strong>Genre:</strong> @movie.ListedIn</p>
-                    <p><strong>Description:</strong> @movie.Description</p>
-                </div>
-            }
+    <div class="container mt-4">
+        <!-- Most Popular Movies Section -->
+        <div class="content-main">
+            <h3>Most Popular Movies</h3>
+            <div class="row">
+                @foreach (var movie in Model.TopRatedMovies)
+                {
+                    <div class="col-md-4">
+                        <a href="@Url.Action("Details", "Home", new { id = movie.ShowId })" class="text-decoration-none">
+                            <div class="movie-item">
+                                <h3>@movie.Title (@movie.ReleaseYear)</h3>
+                                <p><strong>Show Rating:</strong> @movie.Rating</p>
+                                <p><strong>Director:</strong> @movie.Director</p>
+                                <p><strong>Description:</strong> @movie.Description</p>
+                            </div>
+                        </a>
+                    </div>
+                }
+            </div>
         </div>
 
-        <!-- Latest TV Shows Column -->
-        <div class="latest-column">
-            <h2>Latest TV Shows</h2>
-            @foreach (var show in Model.LatestTvShows)
-            {
-                <div class="tv-show-item">
-                    <h3>@show.Title (@show.ReleaseYear)</h3>
-                    <p><strong>Director:</strong> @show.Director</p>
-                    <p><strong>Genre:</strong> @show.ListedIn</p>
-                    <p><strong>Description:</strong> @show.Description</p>
-                </div>
-            }
+        <!-- Most Popular TV Shows Section -->
+        <div class="content-main">
+            <h3>Most Popular TV Shows</h3>
+            <div class="row">
+                @foreach (var show in Model.TopRatedTvShows.OrderByDescending(s => s.Rating))
+                {
+                    <div class="col-md-4">
+                        <a href="@Url.Action("Details", "Home", new { id = show.ShowId })" class="text-decoration-none">
+                            <div class="tv-show-item">
+                                <h3>@show.Title (@show.ReleaseYear)</h3>
+                                <p><strong>Show Rating:</strong> @show.Rating</p>
+                                <p><strong>Director:</strong> @show.Director</p>
+                                <p><strong>Description:</strong> @show.Description</p>
+                            </div>
+                        </a>
+                    </div>
+                }
+            </div>
         </div>
     </div>
+    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
 </body>
+
 </html>

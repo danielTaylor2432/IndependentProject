@@ -9,7 +9,7 @@
     <link rel="stylesheet" href="~/IndependentProject.styles.css" asp-append-version="true" />
     <style>
         body {
-            background-color: #f9f9f9; /* Lighter background */
+            background-color: #f9f9f9;
             font-family: Arial, sans-serif;
             display: flex;
             flex-direction: column;
@@ -17,72 +17,39 @@
         }
 
         header {
-            background-color: #4a90e2; /* Blue header background */
-            color: white; /* White text in header */
+            background-color: #4a90e2;
+            color: white;
         }
 
         .navbar {
-            border-bottom: 2px solid #f5a623; /* Dusted orange bottom border */
+            border-bottom: 2px solid #f5a623;
         }
 
         .navbar-nav .nav-link {
-            color: white; /* White links in navbar */
+            color: white;
         }
 
             .navbar-nav .nav-link:hover {
-                color: #f5a623; /* Change to dusted orange on hover */
+                color: #f5a623;
             }
 
-        .sidebar {
-            position: fixed;
-            top: 0;
-            bottom: 0;
-            width: 200px;
-            padding: 20px;
-            background-color: #2c3e50; /* Dark blue background */
-            color: white;
-            overflow-y: auto;
-        }
-
-        .sidebar-left {
-            left: 0;
-        }
-
-        .sidebar-right {
-            right: 0;
-        }
-
-        .sidebar a {
-            color: #f5a623; /* Dusted orange links */
-            text-decoration: none;
-            display: block;
-            margin-bottom: 10px;
-        }
-
-            .sidebar a:hover {
-                color: #f9f9f9; /* Light color on hover */
-            }
-
-        /* Adjust main content to have space for the sidebars */
         .content-container {
-            margin-left: 220px; /* Adjusted to the width of the left sidebar */
-            margin-right: 220px; /* Adjusted to the width of the right sidebar */
             padding: 20px;
             flex: 1;
         }
 
         footer {
-            background-color: #4a90e2; /* Blue footer background */
-            color: white; /* White text in footer */
+            background-color: #4a90e2;
+            color: white;
             padding: 10px 0;
         }
 
             footer a {
-                color: #f5a623; /* Dusted orange links in footer */
+                color: #f5a623;
             }
 
                 footer a:hover {
-                    color: white; /* Change to white on hover */
+                    color: white;
                 }
     </style>
 </head>
@@ -90,18 +57,24 @@
     <header>
         <nav class="navbar navbar-expand-sm navbar-light">
             <div class="container-fluid">
-                <a class="navbar-brand" asp-area="" asp-controller="Home" asp-action="Index">IndependentProject</a>
+                <a class="navbar-brand" href="@Url.Action("Index", "Home")">IndependentProject</a>
                 <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target=".navbar-collapse" aria-controls="navbarSupportedContent"
                         aria-expanded="false" aria-label="Toggle navigation">
                     <span class="navbar-toggler-icon"></span>
                 </button>
                 <div class="navbar-collapse collapse d-sm-inline-flex justify-content-between">
                     <ul class="navbar-nav flex-grow-1">
+                        <!-- Link to Home Page -->
                         <li class="nav-item">
-                            <a class="nav-link" asp-area="" asp-controller="Home" asp-action="Index">Home</a>
+                            <a class="nav-link" href="@Url.Action("Index", "Home")">Home</a>
                         </li>
+                        <!-- Link to Filter Page -->
                         <li class="nav-item">
-                            <a class="nav-link" asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
+                            <a class="nav-link" href="@Url.Action("Filter", "Home")">Filters</a>
+                        </li>
+                        <!-- Link to Privacy Page -->
+                        <li class="nav-item">
+                            <a class="nav-link" href="@Url.Action("Privacy", "Home")">Privacy</a>
                         </li>
                     </ul>
                 </div>
@@ -118,7 +91,7 @@
 
     <footer class="border-top footer text-muted">
         <div class="container">
-            &copy; 2024 - IndependentProject - <a asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
+            &copy; 2024 - IndependentProject - <a href="@Url.Action("Privacy", "Home")">Privacy</a>
         </div>
     </footer>
 
