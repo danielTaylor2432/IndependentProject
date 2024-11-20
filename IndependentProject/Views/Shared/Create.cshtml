@@ -2,41 +2,36 @@
 
 <h2>Add a Review</h2>
 
-@if (!string.IsNullOrEmpty(ViewBag.ErrorMessage))
-{
-    <div class="alert alert-danger">@ViewBag.ErrorMessage</div>
-}
-
 <form asp-action="Create" method="post">
-    <input type="hidden" asp-for="ShowId" />
+    <!-- Hidden field for RatingID, if necessary -->
+    <input type="hidden" name="ratingID" value="@Model.RatingID" />
+
+    <!-- Hidden field for ShowId -->
+    <input type="hidden" name="showId" value="@Model.ShowId" />
 
     <div>
-        <label for="UserId">UserName:</label>
-        <input asp-for="UserId" type="text" />
+        <label for="userId">UserName:</label>
+        <input name="userId" type="text" value="@Model.UserId" />
         <span asp-validation-for="UserId" class="text-danger"></span>
     </div>
 
     <div>
-        <label for="Rating">Rating (out of 10):</label>
-        <input asp-for="Rating" type="number" min="0" max="10" />
+        <label for="rating">Rating (out of 10):</label>
+        <input name="rating" type="number" min="0" max="10" value="@Model.Rating" />
         <span asp-validation-for="Rating" class="text-danger"></span>
     </div>
 
     <div>
-        <label for="Recommend">Recommend (Yes/No or other):</label>
-        <input asp-for="Recommend" type="text" />
+        <label for="recommend">Recommend (Yes/No or other):</label>
+        <input name="recommend" type="text" value="@Model.Recommend" />
         <span asp-validation-for="Recommend" class="text-danger"></span>
     </div>
 
     <div>
-        <label for="Description">Description:</label>
-        <input asp-for="Description" type="text" />
+        <label for="description">Description:</label>
+        <textarea name="description">@Model.Description</textarea>
         <span asp-validation-for="Description" class="text-danger"></span>
     </div>
 
     <button type="submit">Submit Review</button>
 </form>
-
-@section Scripts {
-    <partial name="_ValidationScriptsPartial" />
-}
