@@ -1,79 +1,139 @@
-﻿@model Ratings
+﻿<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+
 <style>
+    .review-box {
+        background-color: #f9f9f9; /* Light gray for separation */
+        border: 1px solid #ddd; /* Subtle border for the box */
+        border-radius: 8px; /* Rounded corners */
+        padding: 20px; /* Add spacing inside the box */
+        max-width: 600px; /* Limit width for better focus */
+        margin: 20px auto; /* Center the box horizontally */
+    }
+
+        .review-box h2 {
+            text-align: left;
+            color: #333; /* Darker color for headings */
+            margin-bottom: 20px;
+        }
+
+    .form-group {
+        margin-bottom: 15px; /* Space between form elements */
+        display: flex;
+        flex-direction: column;
+        align-items: flex-start; /* Align labels and inputs to the left */
+    }
+
+        .form-group label {
+            font-weight: bold; /* Make labels stand out */
+            margin-bottom: 5px;
+        }
+
+        .form-group input[type="text"],
+        .form-group textarea {
+            width: 100%; /* Make inputs and textareas fill the available space */
+            padding: 10px;
+            border: 1px solid #ccc; /* Subtle border */
+            border-radius: 5px; /* Rounded edges for inputs */
+            font-size: 16px;
+            box-sizing: border-box; /* Include padding and border in width */
+        }
+
+        .form-group textarea {
+            height: 100px; /* Bigger box for description */
+            resize: vertical; /* Allow resizing only vertically */
+        }
+
+    .star-rating-wrapper {
+        display: block;
+        margin-bottom: 15px; /* Add space below the stars */
+        text-align: left; /* Align stars to the left */
+    }
+
     .star-rating {
         display: flex;
-        flex-direction: row-reverse; /* Reverse the order for the hover effect to work correctly */
-        justify-content: flex-start;
+        flex-direction: row-reverse; /* Keep hover functionality */
+        justify-content: flex-start; /* Align stars to the left */
     }
 
         .star-rating input[type="radio"] {
-            display: none; /* Hide the radio buttons */
+            display: none;
         }
 
         .star-rating label {
-            font-size: 30px; /* Size of the stars */
-            color: lightgray; /* Default color of the stars */
+            font-size: 30px;
+            color: lightgray;
             cursor: pointer;
         }
 
-            /* Hover effect - color stars up to the hovered one */
             .star-rating label:hover,
             .star-rating label:hover ~ label {
                 color: gold;
             }
 
-        /* Checked effect - color stars up to the checked one */
         .star-rating input[type="radio"]:checked ~ label {
             color: gold;
         }
 
+    button[type="submit"] {
+        background-color: #007bff; /* Blue button */
+        color: white;
+        padding: 10px 20px;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+        font-size: 16px;
+    }
+
+        button[type="submit"]:hover {
+            background-color: #0056b3; /* Darker blue on hover */
+        }
 </style>
 
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+<div class="review-box">
+    <h2>Add a Review</h2>
 
-<h2>Add a Review</h2>
+    <form asp-action="Create" method="post">
+        <div class="star-rating-wrapper">
+            <label for="rating">Rating:</label>
+            <div class="star-rating">
+                <input type="radio" id="star5" name="rating" value="5" />
+                <label for="star5" class="fa fa-star"></label>
 
-<div class="star-rating">
-    <input type="radio" id="star5" name="rating" value="5" @(Model.Rating == 5 ? "checked" : "") />
-    <label for="star5" class="fa fa-star"></label>
+                <input type="radio" id="star4" name="rating" value="4" />
+                <label for="star4" class="fa fa-star"></label>
 
-    <input type="radio" id="star4" name="rating" value="4" @(Model.Rating == 4 ? "checked" : "") />
-    <label for="star4" class="fa fa-star"></label>
+                <input type="radio" id="star3" name="rating" value="3" />
+                <label for="star3" class="fa fa-star"></label>
 
-    <input type="radio" id="star3" name="rating" value="3" @(Model.Rating == 3 ? "checked" : "") />
-    <label for="star3" class="fa fa-star"></label>
+                <input type="radio" id="star2" name="rating" value="2" />
+                <label for="star2" class="fa fa-star"></label>
 
-    <input type="radio" id="star2" name="rating" value="2" @(Model.Rating == 2 ? "checked" : "") />
-    <label for="star2" class="fa fa-star"></label>
+                <input type="radio" id="star1" name="rating" value="1" />
+                <label for="star1" class="fa fa-star"></label>
+            </div>
+        </div>
 
-    <input type="radio" id="star1" name="rating" value="1" @(Model.Rating == 1 ? "checked" : "") />
-    <label for="star1" class="fa fa-star"></label>
+        <input type="hidden" name="ratingID" value="@Model.RatingID" />
+        <input type="hidden" name="showId" value="@Model.ShowId" />
+
+        <div class="form-group">
+            <label for="userId">UserName:</label>
+            <input name="userId" type="text" value="@Model.UserId" />
+            <span asp-validation-for="UserId" class="text-danger"></span>
+        </div>
+
+        <div class="form-group">
+            <label for="recommend">Recommend (Yes/No or other):</label>
+            <input name="recommend" type="text" value="@Model.Recommend" />
+            <span asp-validation-for="Recommend" class="text-danger"></span>
+        </div>
+
+        <div class="form-group">
+            <label for="description">Description:</label>
+            <textarea name="description">@Model.Description</textarea>
+            <span asp-validation-for="Description" class="text-danger"></span>
+        </div>
+
+        <button type="submit">Submit Review</button>
+    </form>
 </div>
-<form asp-action="Create" method="post">
-    <!-- Hidden field for RatingID, if necessary -->
-
-    <input type="hidden" name="ratingID" value="@Model.RatingID" />
-
-    <!-- Hidden field for ShowId -->
-    <input type="hidden" name="showId" value="@Model.ShowId" />
-
-    <div>
-        <label for="userId">UserName:</label>
-        <input name="userId" type="text" value="@Model.UserId" />
-        <span asp-validation-for="UserId" class="text-danger"></span>
-    </div>
-
-    <div>
-        <label for="recommend">Recommend (Yes/No or other):</label>
-        <input name="recommend" type="text" value="@Model.Recommend" />
-        <span asp-validation-for="Recommend" class="text-danger"></span>
-    </div>
-
-    <div>
-        <label for="description">Description:</label>
-        <textarea name="description">@Model.Description</textarea>
-        <span asp-validation-for="Description" class="text-danger"></span>
-    </div>
-
-    <button type="submit">Submit Review</button>
-</form>
