@@ -27,65 +27,100 @@ public class HomeController : Controller
         var ratingsResponse = await _supabaseClient.From<Ratings>().Get();
         var ratings = ratingsResponse.Models;
 
-        // Debugging: Check total counts
-        Console.WriteLine("Total Movies Fetched: " + allMovies.Count);
-        Console.WriteLine("Total Ratings Fetched: " + ratings.Count);
+        // Normalize ShowIds to avoid mismatches
+        foreach (var movie in allMovies)
+        {
+            movie.ShowId = movie.ShowId.ToLower();
+        }
 
-        // Calculate average ratings for each ShowId
-        var averageRatings = ratings
+        foreach (var rating in ratings)
+        {
+            rating.ShowId = rating.ShowId.ToLower();
+        }
+
+        // Debug: Log total movies and ratings
+        //Console.WriteLine($"Total Movies: {allMovies.Count}");
+        //Console.WriteLine($"Total Ratings: {ratings.Count}");
+
+        // Precompute average ratings
+        var avgRatings = ratings
             .GroupBy(r => r.ShowId)
-            .Select(g => new
+            .ToDictionary(g => g.Key, g => g.Average(r => r.Rating));
+
+        // Assign average ratings to movies
+        foreach (var movie in allMovies)
+        {
+            var matchedRatings = ratings.Where(r => r.ShowId == movie.ShowId).ToList();
+            if (matchedRatings.Count == 0)
             {
-                ShowId = g.Key,
-                AverageRating = g.Average(r => r.Rating)
-            })
-            .ToList();
+                //Console.WriteLine($"No ratings found for Movie: {movie.Title} (ShowId: {movie.ShowId})");
+            }
+            else
+            {
+                Console.WriteLine($"Ratings found for Movie: {movie.Title} (ShowId: {movie.ShowId}): {string.Join(", ", matchedRatings.Select(r => r.Rating))}");
+                
+                int[] arr = matchedRatings.Select(r => r.Rating).ToArray();
+                int sum = 0;
+                for ( var i = 0; i < arr.Length; i++ ) {
+                    sum += arr[i];
+                }
+                int avg = sum / arr.Length;
+                movie.AverageRating = avg;
+            }
+        }
 
-        // Filter top 5 highest-rated movies
-        var topRatedMovieIds = averageRatings
-            .Where(r => allMovies.Any(m => m.ShowId == r.ShowId && m.Type == "Movie"))
-            .OrderByDescending(r => r.AverageRating)
-            .Take(5)
-            .Select(r => r.ShowId)
-            .ToList();
+        Console.WriteLine(allMovies.Count.ToString());
 
-        // Filter top 5 highest-rated TV shows
-        var topRatedTvShowIds = averageRatings
-            .Where(r => allMovies.Any(tv => tv.ShowId == r.ShowId && tv.Type == "TV Show"))
-            .OrderByDescending(r => r.AverageRating)
-            .Take(5)
-            .Select(r => r.ShowId)
-            .ToList();
-
-        // Fetch and filter all movies and shows based on the calculated top-rated IDs
+        // Filter top-rated movies
         var topRatedMovies = allMovies
-            .Where(movie => topRatedMovieIds.Contains(movie.ShowId) && movie.Type == "Movie")
+            .Where(m => m.Type == "Movie" && m.AverageRating > 0) // Ensure movies have ratings
+            .OrderByDescending(m => m.AverageRating)
+            .Take(9) // Increased limit for debugging
             .ToList();
 
+        // Debug: Log top-rated movies
+        Console.WriteLine($"Top Rated Movies Count: {topRatedMovies.Count}");
+
+        // Filter top-rated TV shows
         var topRatedTvShows = allMovies
-            .Where(show => topRatedTvShowIds.Contains(show.ShowId) && show.Type == "TV Show")
+            .Where(m => m.Type == "TV Show" && m.AverageRating > 0) // Ensure shows have ratings
+            .OrderByDescending(m => m.AverageRating)
+            .Take(9) // Increased limit for debugging
             .ToList();
 
-        // Debugging: Check counts of top-rated results
-        Console.WriteLine("Top Rated Movies Count: " + topRatedMovies.Count);
-        Console.WriteLine("Top Rated TV Shows Count: " + topRatedTvShows.Count);
+        // Debug: Log top-rated TV shows
+        Console.WriteLine($"Top Rated TV Shows Count: {topRatedTvShows.Count}");
 
-        // Pass the data to the view model
+        // Add any other movie lists for your existing logic
+        var latestMovies = allMovies
+            .Where(m => m.Type == "Movie")
+            .OrderByDescending(m => m.ReleaseYear)
+            .Take(9)
+            .ToList();
+
+        var latestTvShows = allMovies
+            .Where(m => m.Type == "TV Show")
+            .OrderByDescending(m => m.ReleaseYear)
+            .Take(9)
+            .ToList();
+
+        // Pass data to the view model
         var viewModel = new LatestContentViewModel
         {
             TopRatedMovies = topRatedMovies,
-            TopRatedTvShows = topRatedTvShows
+            TopRatedTvShows = topRatedTvShows,
+            LatestMovies = latestMovies,
+            LatestTvShows = latestTvShows
         };
 
         return View(viewModel);
     }
 
-
-
-
-
     public async Task<IActionResult> Details(string id)
     {
+        // Normalize ShowId for lookup
+        id = id.Trim().ToLower();
+
         // Retrieve the movie or show based on the ShowId
         var movieResponse = await _supabaseClient
             .From<Movies>()

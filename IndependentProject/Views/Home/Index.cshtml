@@ -54,6 +54,7 @@
                             <div class="movie-item">
                                 <h3>@movie.Title (@movie.ReleaseYear)</h3>
                                 <p><strong>Show Rating:</strong> @movie.Rating</p>
+                                <p><strong>Average Rating:</strong> @movie.AverageRating.ToString("0.0")</p>
                                 <p><strong>Director:</strong> @movie.Director</p>
                                 <p><strong>Description:</strong> @movie.Description</p>
                             </div>
@@ -73,6 +74,7 @@
                         <a href="@Url.Action("Details", "Home", new { id = show.ShowId })" class="text-decoration-none">
                             <div class="tv-show-item">
                                 <h3>@show.Title (@show.ReleaseYear)</h3>
+                                <p><strong>Average Rating:</strong> @show.AverageRating.ToString("0.0")</p>
                                 <p><strong>Show Rating:</strong> @show.Rating</p>
                                 <p><strong>Director:</strong> @show.Director</p>
                                 <p><strong>Description:</strong> @show.Description</p>

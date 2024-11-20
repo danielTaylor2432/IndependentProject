@@ -38,4 +38,6 @@ public class Movies : BaseModel
 
     [Column("description")]
     public string Description { get; set; }
+
+    public double AverageRating { get; set; } // Add average rating
 }
