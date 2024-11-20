@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Mvc;
+using Newtonsoft.Json;
 using Supabase;
 using Supabase.Postgrest.Attributes;
 using Supabase.Postgrest.Models;
@@ -16,76 +17,76 @@ public class HomeController : Controller
         _supabaseClient = supabaseClient;
     }
 
-    // Method to display all data from the NetflixShow table with filtering
-    public async Task<IActionResult> Index(string searchTitle = "", int? releaseYear = null, string rating = "", string type = "")
+    public async Task<IActionResult> Index()
     {
-        try
+        // Fetch all movies and TV shows
+        var allMoviesResponse = await _supabaseClient.From<Movies>().Get();
+        var allMovies = allMoviesResponse.Models;
+
+        // Fetch all ratings
+        var ratingsResponse = await _supabaseClient.From<Ratings>().Get();
+        var ratings = ratingsResponse.Models;
+
+        // Debugging: Check total counts
+        Console.WriteLine("Total Movies Fetched: " + allMovies.Count);
+        Console.WriteLine("Total Ratings Fetched: " + ratings.Count);
+
+        // Calculate average ratings for each ShowId
+        var averageRatings = ratings
+            .GroupBy(r => r.ShowId)
+            .Select(g => new
+            {
+                ShowId = g.Key,
+                AverageRating = g.Average(r => r.Rating)
+            })
+            .ToList();
+
+        // Filter top 5 highest-rated movies
+        var topRatedMovieIds = averageRatings
+            .Where(r => allMovies.Any(m => m.ShowId == r.ShowId && m.Type == "Movie"))
+            .OrderByDescending(r => r.AverageRating)
+            .Take(5)
+            .Select(r => r.ShowId)
+            .ToList();
+
+        // Filter top 5 highest-rated TV shows
+        var topRatedTvShowIds = averageRatings
+            .Where(r => allMovies.Any(tv => tv.ShowId == r.ShowId && tv.Type == "TV Show"))
+            .OrderByDescending(r => r.AverageRating)
+            .Take(5)
+            .Select(r => r.ShowId)
+            .ToList();
+
+        // Fetch and filter all movies and shows based on the calculated top-rated IDs
+        var topRatedMovies = allMovies
+            .Where(movie => topRatedMovieIds.Contains(movie.ShowId) && movie.Type == "Movie")
+            .ToList();
+
+        var topRatedTvShows = allMovies
+            .Where(show => topRatedTvShowIds.Contains(show.ShowId) && show.Type == "TV Show")
+            .ToList();
+
+        // Debugging: Check counts of top-rated results
+        Console.WriteLine("Top Rated Movies Count: " + topRatedMovies.Count);
+        Console.WriteLine("Top Rated TV Shows Count: " + topRatedTvShows.Count);
+
+        // Pass the data to the view model
+        var viewModel = new LatestContentViewModel
         {
-            // Step 1: Retrieve the movies based on search criteria
-            var response = await _supabaseClient.From<Movies>().Get();
-            var movies = response.Models?.AsQueryable() ?? Enumerable.Empty<Movies>().AsQueryable();
+            TopRatedMovies = topRatedMovies,
+            TopRatedTvShows = topRatedTvShows
+        };
 
-            // Apply filters if necessary
-            if (!string.IsNullOrEmpty(searchTitle))
-            {
-                movies = movies.Where(m => m.Title.Contains(searchTitle, StringComparison.OrdinalIgnoreCase));
-            }
-
-            if (releaseYear.HasValue)
-            {
-                movies = movies.Where(m => m.ReleaseYear == releaseYear.Value);
-            }
-
-            if (!string.IsNullOrEmpty(rating))
-            {
-                movies = movies.Where(m => m.Rating.Equals(rating, StringComparison.OrdinalIgnoreCase));
-            }
-
-            if (!string.IsNullOrEmpty(type))
-            {
-                movies = movies.Where(m => m.Type.Equals(type, StringComparison.OrdinalIgnoreCase));
-            }
-
-            // Convert movies to a list so we can work with it
-            var movieList = movies.ToList();
-
-            // Step 2: Retrieve all ratings, then filter them in-memory based on ShowId
-            var allRatingsResponse = await _supabaseClient.From<Ratings>().Get();
-            var ratingsList = allRatingsResponse.Models;
-
-            // Get the list of show IDs from the movie list
-            var showIds = movieList.Select(m => m.ShowId).Distinct().ToList();
-
-            // Step 3: Group ratings by ShowId for easier lookup
-            var ratingsByShowId = ratingsList
-                .Where(r => showIds.Contains(r.ShowId)) // Filter in-memory
-                .GroupBy(r => r.ShowId)
-                .ToDictionary(g => g.Key, g => g.ToList());
-
-            // Step 4: Create a list of ViewModel objects
-            var movieWithRatingsList = movieList.Select(movie => new MovieWithRatingsViewModel
-            {
-                Movie = movie,
-                Ratings = ratingsByShowId.ContainsKey(movie.ShowId) ? ratingsByShowId[movie.ShowId] : new List<Ratings>()
-            }).ToList();
-
-            // Pass the ViewModel list to the view
-            ViewBag.Years = response.Models?.Select(m => m.ReleaseYear).Distinct().OrderBy(y => y).ToList();
-            ViewBag.Ratings = response.Models?.Select(m => m.Rating).Distinct().OrderBy(r => r).ToList();
-            ViewBag.Types = response.Models?.Select(m => m.Type).Distinct().OrderBy(t => t).ToList();
-
-            return View(movieWithRatingsList);  // Pass the ViewModel list to the view
-        }
-        catch (Exception ex)
-        {
-            ViewBag.ErrorMessage = ex.Message;
-            return View("Error");
-        }
+        return View(viewModel);
     }
+
+
+
+
 
     public async Task<IActionResult> Details(string id)
     {
-        // Retrieve the movie based on the ShowId
+        // Retrieve the movie or show based on the ShowId
         var movieResponse = await _supabaseClient
             .From<Movies>()
             .Filter("show_id", Operator.Equals, id)
@@ -95,10 +96,10 @@ public class HomeController : Controller
 
         if (movie == null)
         {
-            return NotFound("Movie not found.");
+            return NotFound("Content not found.");
         }
 
-        // Retrieve reviews for this movie
+        // Retrieve reviews for this movie or show
         var reviewResponse = await _supabaseClient
             .From<Ratings>()
             .Filter("Show_Id", Operator.Equals, id)
@@ -106,7 +107,7 @@ public class HomeController : Controller
 
         var reviews = reviewResponse.Models;
 
-        // Pass the movie and reviews data to the view
+        // Pass the content and reviews data to the view
         var viewModel = new MovieWithRatingsViewModel
         {
             Movie = movie,
@@ -115,7 +116,4 @@ public class HomeController : Controller
 
         return View(viewModel);
     }
-
-
-
 }

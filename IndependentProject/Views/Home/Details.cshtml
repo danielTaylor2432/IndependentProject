@@ -57,6 +57,7 @@
         <!-- Reviews Section -->
         <div class="reviews">
             <a href="@Url.Action("Create", "Review", new { movieId = Model.Movie.ShowId })" class="btn-write-review">Write a Review</a>
+
             <h2>User Reviews</h2>
             @if (Model.Ratings.Any())
             {
