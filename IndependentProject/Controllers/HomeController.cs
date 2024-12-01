@@ -23,9 +23,15 @@ public class HomeController : Controller
         var allMoviesResponse = await _supabaseClient.From<Movies>().Get();
         var allMovies = allMoviesResponse.Models;
 
+        // Debug: Log the number of movies fetched
+        Console.WriteLine($"Total Movies Fetched: {allMovies.Count}");
+
         // Fetch all ratings
         var ratingsResponse = await _supabaseClient.From<Ratings>().Get();
         var ratings = ratingsResponse.Models;
+
+        // Debug: Log the number of ratings fetched
+        Console.WriteLine($"Total Ratings Fetched: {ratings.Count}");
 
         // Normalize ShowIds to avoid mismatches
         foreach (var movie in allMovies)
@@ -38,58 +44,72 @@ public class HomeController : Controller
             rating.ShowId = rating.ShowId.ToLower();
         }
 
-        // Debug: Log total movies and ratings
-        //Console.WriteLine($"Total Movies: {allMovies.Count}");
-        //Console.WriteLine($"Total Ratings: {ratings.Count}");
+        // Debug: Log normalized ShowIds
+        Console.WriteLine("Normalized ShowIds:");
+        foreach (var movie in allMovies)
+        {
+            Console.WriteLine($"Movie: {movie.Title}, ShowId: {movie.ShowId}");
+        }
 
-        // Precompute average ratings
-        var avgRatings = ratings
-            .GroupBy(r => r.ShowId)
-            .ToDictionary(g => g.Key, g => g.Average(r => r.Rating));
+        foreach (var rating in ratings)
+        {
+            Console.WriteLine($"Rating: ShowId: {rating.ShowId}, Rating Value: {rating.Rating}");
+        }
 
         // Assign average ratings to movies
         foreach (var movie in allMovies)
         {
+            // Filter ratings specific to this movie
             var matchedRatings = ratings.Where(r => r.ShowId == movie.ShowId).ToList();
-            if (matchedRatings.Count == 0)
+
+            if (matchedRatings.Count > 0)
             {
-                //Console.WriteLine($"No ratings found for Movie: {movie.Title} (ShowId: {movie.ShowId})");
+                // Debug: Log matched ratings for the current movie
+                Console.WriteLine($"Matched Ratings for Movie '{movie.Title}' (ShowId: {movie.ShowId}): {string.Join(", ", matchedRatings.Select(r => r.Rating))}");
+
+                // Calculate and assign the average rating
+                movie.AverageRating = matchedRatings.Average(r => r.Rating);
+
+                // Debug: Log the calculated average
+                Console.WriteLine($"Average Rating for '{movie.Title}': {movie.AverageRating}");
             }
             else
             {
-                Console.WriteLine($"Ratings found for Movie: {movie.Title} (ShowId: {movie.ShowId}): {string.Join(", ", matchedRatings.Select(r => r.Rating))}");
-                
-                int[] arr = matchedRatings.Select(r => r.Rating).ToArray();
-                int sum = 0;
-                for ( var i = 0; i < arr.Length; i++ ) {
-                    sum += arr[i];
-                }
-                int avg = sum / arr.Length;
-                movie.AverageRating = avg;
+                // Debug: Log movies with no ratings
+                Console.WriteLine($"No Ratings Found for Movie: {movie.Title} (ShowId: {movie.ShowId})");
+
+                // Default to 0 if no ratings are found
+                movie.AverageRating = 0;
             }
         }
 
-        Console.WriteLine(allMovies.Count.ToString());
-
         // Filter top-rated movies
         var topRatedMovies = allMovies
-            .Where(m => m.Type == "Movie" && m.AverageRating > 0) // Ensure movies have ratings
+            .Where(m => m.Type == "Movie" && m.AverageRating > 0)
             .OrderByDescending(m => m.AverageRating)
-            .Take(9) // Increased limit for debugging
+            .Take(9)
             .ToList();
 
         // Debug: Log top-rated movies
-        Console.WriteLine($"Top Rated Movies Count: {topRatedMovies.Count}");
+        Console.WriteLine("Top Rated Movies:");
+        foreach (var movie in topRatedMovies)
+        {
+            Console.WriteLine($"Movie: {movie.Title}, Average Rating: {movie.AverageRating}");
+        }
 
         // Filter top-rated TV shows
         var topRatedTvShows = allMovies
-            .Where(m => m.Type == "TV Show" && m.AverageRating > 0) // Ensure shows have ratings
+            .Where(m => m.Type == "TV Show" && m.AverageRating > 0)
             .OrderByDescending(m => m.AverageRating)
-            .Take(9) // Increased limit for debugging
+            .Take(9)
             .ToList();
 
         // Debug: Log top-rated TV shows
-        Console.WriteLine($"Top Rated TV Shows Count: {topRatedTvShows.Count}");
+        Console.WriteLine("Top Rated TV Shows:");
+        foreach (var show in topRatedTvShows)
+        {
+            Console.WriteLine($"TV Show: {show.Title}, Average Rating: {show.AverageRating}");
+        }
 
         // Add any other movie lists for your existing logic
         var latestMovies = allMovies
@@ -115,6 +135,7 @@ public class HomeController : Controller
 
         return View(viewModel);
     }
+
 
     public async Task<IActionResult> Details(string id)
     {
@@ -151,4 +172,50 @@ public class HomeController : Controller
 
         return View(viewModel);
     }
+
+    public async Task<IActionResult> Filter(string searchTitle = "", string type = "", int? year = null, string rating = "", int page = 1, int pageSize = 30)
+    {
+        var moviesResponse = await _supabaseClient.From<Movies>().Get();
+        var movies = moviesResponse.Models;
+
+        if (!string.IsNullOrEmpty(searchTitle))
+        {
+            movies = movies.Where(m => m.Title != null && m.Title.ToLower().Contains(searchTitle.ToLower())).ToList();
+        }
+        if (!string.IsNullOrEmpty(type))
+        {
+            movies = movies.Where(m => m.Type == type).ToList();
+        }
+        if (year.HasValue)
+        {
+            movies = movies.Where(m => m.ReleaseYear == year.Value).ToList();
+        }
+        if (!string.IsNullOrEmpty(rating))
+        {
+            movies = movies.Where(m => m.Rating == rating).ToList();
+        }
+
+        ViewBag.Types = movies.Select(m => m.Type).Distinct().ToList();
+        ViewBag.Years = movies.Select(m => m.ReleaseYear).Distinct().OrderBy(y => y).ToList();
+        ViewBag.Ratings = movies.Select(m => m.Rating).Distinct().OrderBy(r => r).ToList();
+
+        var totalMovies = movies.Count;
+        var totalPages = (int)Math.Ceiling((double)totalMovies / pageSize);
+        ViewBag.TotalPages = totalPages;
+        ViewBag.CurrentPage = page;
+
+        var pagedMovies = movies
+            .Skip((page - 1) * pageSize)
+            .Take(pageSize)
+            .Select(m => new MovieWithRatingsViewModel
+            {
+                Movie = m,
+                Ratings = new List<Ratings>() // Can fetch ratings if needed
+            })
+            .ToList();
+
+        return View(pagedMovies);
+    }
+
+
 }

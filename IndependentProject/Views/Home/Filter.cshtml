@@ -5,35 +5,33 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Movie List</title>
+    <title>Filtered Movie List</title>
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
     <style>
         body {
             font-family: Arial, sans-serif;
             margin: 0;
             padding: 0;
-            background-color: #f4f6f8;
+            background-color: #f9f9f9;
         }
 
-        /* Header Navigation */
         .header {
+            position: fixed;
             width: 100%;
-            background-color: #2c3e50;
+            height: 60px;
+            background-color: #4a90e2;
             color: white;
-            padding: 10px 20px;
             display: flex;
             align-items: center;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-            position: fixed;
-            top: 0;
-            left: 0;
+            padding: 0 20px;
             z-index: 1000;
-            height: 60px;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
         }
 
             .header h1 {
                 margin: 0;
-                font-size: 1.5em;
-                flex: 1;
+                font-size: 1.5rem;
+                flex-grow: 1;
             }
 
             .header nav {
@@ -42,122 +40,82 @@
             }
 
                 .header nav a {
-                    color: #ecf0f1;
+                    color: white;
                     text-decoration: none;
-                    font-size: 1em;
+                    font-size: 1rem;
                 }
 
                     .header nav a:hover {
-                        color: #bdc3c7;
+                        color: #f5a623;
                     }
 
-        /* Main layout below the header */
         .main-container {
             display: flex;
             margin-top: 60px;
+            max-width: 1200px;
+            margin-left: auto;
+            margin-right: auto;
         }
 
-        /* Sidebar filter container */
         .filter-container {
-            width: 250px;
+            width: 280px;
             padding: 20px;
-            background-color: #ecf0f1;
+            background-color: #f1f1f1;
             border-right: 1px solid #ddd;
-            position: fixed;
-            top: 60px;
-            left: 0;
             height: calc(100vh - 60px);
             overflow-y: auto;
             box-shadow: 2px 0 6px rgba(0, 0, 0, 0.1);
+            margin-top: 20px;
+            border-radius: 8px;
         }
 
             .filter-container h2 {
+                font-size: 1.2rem;
                 color: #34495e;
-                font-size: 1.2em;
                 margin-bottom: 15px;
             }
 
-            .filter-container input, .filter-container select {
+            .filter-container input,
+            .filter-container select {
                 width: 100%;
                 padding: 8px;
                 margin-bottom: 10px;
-                border: 1px solid #bdc3c7;
+                border: 1px solid #ccc;
                 border-radius: 4px;
+                font-size: 1rem;
             }
 
-                .filter-container input:focus, .filter-container select:focus {
-                    border-color: #3498db;
-                    outline: none;
-                    box-shadow: 0 0 5px rgba(52, 152, 219, 0.4);
-                }
-
-        /* Content container for movies */
         .content-container {
             flex: 1;
-            margin-left: 270px;
+            margin-left: 20px;
             padding: 20px;
-            max-width: 1200px;
         }
 
-        /* Movie list styles */
         .movie-details {
+            background-color: #ffffff;
             border: 1px solid #ddd;
             border-radius: 8px;
-            padding: 20px;
-            margin-bottom: 20px;
-            background-color: #ffffff;
+            padding: 15px;
+            margin-bottom: 15px;
             box-shadow: 0 4px 8px rgba(0, 0, 0, 0.05);
+            transition: transform 0.2s;
         }
 
+            .movie-details:hover {
+                transform: scale(1.02);
+            }
+
             .movie-details h2 {
-                margin-bottom: 10px;
+                font-size: 1.5rem;
                 color: #2c3e50;
-                font-size: 1.5em;
+                margin-bottom: 10px;
             }
 
             .movie-details p {
                 margin: 5px 0;
-                color: #34495e;
+                color: #7f8c8d;
             }
 
-        .label {
-            font-weight: bold;
-            color: #7f8c8d;
-        }
-
-        .value {
-            color: #2c3e50;
-        }
-
-        .ratings-section {
-            margin-top: 15px;
-            padding-top: 10px;
-            border-top: 1px solid #ddd;
-        }
-
-            .ratings-section h4 {
-                color: #2c3e50;
-                margin-bottom: 8px;
-            }
-
-        .review {
-            margin-bottom: 10px;
-            padding: 10px;
-            background-color: #ecf0f1;
-            border-radius: 4px;
-        }
-
-            .review p {
-                margin: 5px 0;
-                color: #34495e;
-            }
-
-        .no-reviews {
-            color: #95a5a6;
-            font-style: italic;
-        }
-
-        /* Pagination styles */
         .pagination-controls {
             text-align: center;
             margin-top: 20px;
@@ -166,56 +124,53 @@
             .pagination-controls a {
                 margin: 0 10px;
                 padding: 5px 10px;
-                color: #3498db;
-                text-decoration: none;
                 border: 1px solid #ddd;
                 border-radius: 5px;
+                text-decoration: none;
+                color: #3498db;
             }
 
                 .pagination-controls a:hover {
-                    background-color: #f0f0f0;
+                    background-color: #ddd;
                 }
 
             .pagination-controls span {
                 margin: 0 10px;
                 padding: 5px 10px;
-                color: #333;
             }
     </style>
 </head>
 <body>
-
-    <!-- Header Navigation Bar -->
+    <!-- Header -->
     <div class="header">
         <h1>IndependentProject</h1>
         <nav>
-            <a href="#">Home</a>
-            <a href="#">Privacy</a>
+            <a href="/">Home</a>
+            <a href="/Home/Filter">Filter</a>
+            <a href="/Home/Privacy">Privacy</a>
         </nav>
     </div>
 
-    <!-- Main Content with Sidebar and Movie List -->
     <div class="main-container">
-
-        <!-- Filter Controls Sidebar -->
+        <!-- Filters Sidebar -->
         <div class="filter-container">
             <h2>Filters</h2>
-            <input type="text" id="searchInput" placeholder="Search by title..." onkeyup="filterMovies()" />
-            <select id="typeFilter" onchange="filterMovies()">
+            <input type="text" id="searchInput" placeholder="Search by title" class="form-control mb-3" onkeyup="applyFilters()" />
+            <select id="typeFilter" class="form-control mb-3" onchange="applyFilters()">
                 <option value="">All Types</option>
                 @foreach (var type in ViewBag.Types)
                 {
                     <option value="@type">@type</option>
                 }
             </select>
-            <select id="yearFilter" onchange="filterMovies()">
+            <select id="yearFilter" class="form-control mb-3" onchange="applyFilters()">
                 <option value="">All Years</option>
                 @foreach (var year in ViewBag.Years)
                 {
                     <option value="@year">@year</option>
                 }
             </select>
-            <select id="ratingFilter" onchange="filterMovies()">
+            <select id="ratingFilter" class="form-control mb-3" onchange="applyFilters()">
                 <option value="">All Ratings</option>
                 @foreach (var rating in ViewBag.Ratings)
                 {
@@ -224,64 +179,36 @@
             </select>
         </div>
 
-        <!-- Movie List Content Area -->
+        <!-- Movies Content -->
         <div class="content-container">
-            <h1>Movie List</h1>
-
+            <h1>Filtered Movie List</h1>
             @if (!Model.Any())
             {
-                <p>No movies available to display.</p>
+                <p>No movies found.</p>
             }
             else
             {
-                <div id="movieList">
-                    @foreach (var item in Model)
-                    {
-                        var movie = item.Movie;
-                        var ratings = item.Ratings;
-
-                        <a href="@Url.Action("Details", "Home", new { id = movie.ShowId })" style="text-decoration: none; color: inherit;">
-                            <div class="movie-details">
-                                <h2>@movie.Title (@movie.ReleaseYear)</h2>
-                                <p><span class="label">Type:</span> <span class="value">@movie.Type</span></p>
-                                <p><span class="label">Director:</span> <span class="value">@movie.Director</span></p>
-                                <p><span class="label">Cast:</span> <span class="value">@movie.Cast</span></p>
-                                <p><span class="label">Country:</span> <span class="value">@movie.Country</span></p>
-                                <p><span class="label">Date Added:</span> <span class="value">@movie.DateAdded</span></p>
-                                <p><span class="label">Rating:</span> <span class="value">@movie.Rating</span></p>
-                                <p><span class="label">Duration:</span> <span class="value">@movie.Duration</span></p>
-                                <p><span class="label">Category:</span> <span class="value">@movie.ListedIn</span></p>
-                                <p><span class="label">Description:</span> <span class="value">@movie.Description</span></p>
-
-                                <!-- Ratings Section -->
-                                <div class="ratings-section">
-                                    <h4>Average User Rating:</h4>
-                                    @if (ratings.Any())
-                                    {
-                                        <p>@(ratings.Average(r => r.Rating)) / 5</p>
-                                    }
-                                    else
-                                    {
-                                        <p class="no-reviews">No ratings yet.</p>
-                                    }
-                                </div>
-                            </div>
-                        </a>
-                    }
-                </div>
+                @foreach (var item in Model)
+                {
+                    var movie = item.Movie;
+                    <div class="movie-details">
+                        <h2>@movie.Title (@movie.ReleaseYear)</h2>
+                        <p><strong>Type:</strong> @movie.Type</p>
+                        <p><strong>Rating:</strong> @movie.Rating</p>
+                        <p><strong>Director:</strong> @movie.Director</p>
+                    </div>
+                }
 
                 <!-- Pagination Controls -->
                 <div class="pagination-controls">
                     @if (ViewBag.CurrentPage > 1)
                     {
-                        <a href="@Url.Action("Index", new { pageNumber = ViewBag.CurrentPage - 1 })">Previous</a>
+                        <a href="@Url.Action("Filter", new { page = ViewBag.CurrentPage - 1 })">Previous</a>
                     }
-
                     <span>Page @ViewBag.CurrentPage of @ViewBag.TotalPages</span>
-
                     @if (ViewBag.CurrentPage < ViewBag.TotalPages)
                     {
-                        <a href="@Url.Action("Index", new { pageNumber = ViewBag.CurrentPage + 1 })">Next</a>
+                        <a href="@Url.Action("Filter", new { page = ViewBag.CurrentPage + 1 })">Next</a>
                     }
                 </div>
             }
@@ -289,32 +216,15 @@
     </div>
 
     <script>
-        function filterMovies() {
-            var searchTitle = document.getElementById("searchInput").value.toLowerCase();
-            var selectedType = document.getElementById("typeFilter").value;
-            var selectedYear = document.getElementById("yearFilter").value;
-            var selectedRating = document.getElementById("ratingFilter").value;
+        function applyFilters() {
+            const searchTitle = document.getElementById("searchInput").value;
+            const selectedType = document.getElementById("typeFilter").value;
+            const selectedYear = document.getElementById("yearFilter").value;
+            const selectedRating = document.getElementById("ratingFilter").value;
 
-            var movies = document.getElementsByClassName("movie-details");
-
-            for (var i = 0; i < movies.length; i++) {
-                var movie = movies[i];
-                var movieTitle = movie.querySelector("h2").innerText.toLowerCase();
-                var movieType = movie.querySelector(".value").innerText;
-                var movieYear = movieTitle.match(/\((\d{4})\)/) ? movieTitle.match(/\((\d{4})\)/)[1] : "";
-                var movieRating = movie.querySelector(".value").innerText;
-
-                // Check if movie matches the title and filter values
-                var titleMatch = !searchTitle || movieTitle.includes(searchTitle);
-                var typeMatch = !selectedType || movieType === selectedType;
-                var yearMatch = !selectedYear || movieYear === selectedYear;
-                var ratingMatch = !selectedRating || movieRating === selectedRating;
-
-                // Display the movie if it matches all filters; otherwise, hide it
-                movie.style.display = (titleMatch && typeMatch && yearMatch && ratingMatch) ? "block" : "none";
-            }
-        }
+            const query = `?searchTitle=${encodeURIComponent(searchTitle)}&type=${encodeURIComponent(selectedType)}&year=${encodeURIComponent(selectedYear)}&rating=${encodeURIComponent(selectedRating)}`;
+                    window.location.href = "/Home/Filter" + query;
+                }
     </script>
-
 </body>
 </html>
