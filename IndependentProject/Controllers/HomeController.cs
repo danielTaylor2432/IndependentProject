@@ -23,7 +23,7 @@ public class HomeController : Controller
         var allMoviesResponse = await _supabaseClient.From<Movies>().Get();
         var allMovies = allMoviesResponse.Models;
 
-        // Debug: Log the number of movies fetched
+        // for da bugging: Log the number of movies fetched
         Console.WriteLine($"Total Movies Fetched: {allMovies.Count}");
 
         // Fetch all ratings
@@ -111,7 +111,7 @@ public class HomeController : Controller
             Console.WriteLine($"TV Show: {show.Title}, Average Rating: {show.AverageRating}");
         }
 
-        // Add any other movie lists for your existing logic
+        // just all the latest titels seperated for ease
         var latestMovies = allMovies
             .Where(m => m.Type == "Movie")
             .OrderByDescending(m => m.ReleaseYear)
@@ -139,7 +139,7 @@ public class HomeController : Controller
 
     public async Task<IActionResult> Details(string id)
     {
-        // Normalize ShowId for lookup
+        // Normalize ShowId for lookup since some shows have formatting issues :(
         id = id.Trim().ToLower();
 
         // Retrieve the movie or show based on the ShowId
@@ -173,11 +173,21 @@ public class HomeController : Controller
         return View(viewModel);
     }
 
-    public async Task<IActionResult> Filter(string searchTitle = "", string type = "", int? year = null, string rating = "", int page = 1, int pageSize = 30)
+    public async Task<IActionResult> Filter(
+        string searchTitle = "",
+        string type = "",
+        int? year = null,
+        string rating = "",
+        string sortBy = "Title", // Add sorting option
+        bool ascending = true,   // Add sorting order for a better ui
+        int page = 1,
+        int pageSize = 30)
     {
+        // Fetch movies from the supabase db
         var moviesResponse = await _supabaseClient.From<Movies>().Get();
         var movies = moviesResponse.Models;
 
+        // Apply filters
         if (!string.IsNullOrEmpty(searchTitle))
         {
             movies = movies.Where(m => m.Title != null && m.Title.ToLower().Contains(searchTitle.ToLower())).ToList();
@@ -195,10 +205,22 @@ public class HomeController : Controller
             movies = movies.Where(m => m.Rating == rating).ToList();
         }
 
+        // Apply sorting
+        movies = sortBy switch
+        {
+            "Title" => ascending ? movies.OrderBy(m => m.Title).ToList() : movies.OrderByDescending(m => m.Title).ToList(),
+            "ReleaseYear" => ascending ? movies.OrderBy(m => m.ReleaseYear).ToList() : movies.OrderByDescending(m => m.ReleaseYear).ToList(),
+            "Type" => ascending ? movies.OrderBy(m => m.Type).ToList() : movies.OrderByDescending(m => m.Type).ToList(),
+            "Rating" => ascending ? movies.OrderBy(m => m.Rating).ToList() : movies.OrderByDescending(m => m.Rating).ToList(),
+            _ => movies
+        };
+
+        // Populate ViewBag for dropdown filters
         ViewBag.Types = movies.Select(m => m.Type).Distinct().ToList();
         ViewBag.Years = movies.Select(m => m.ReleaseYear).Distinct().OrderBy(y => y).ToList();
         ViewBag.Ratings = movies.Select(m => m.Rating).Distinct().OrderBy(r => r).ToList();
 
+        // Pagination
         var totalMovies = movies.Count;
         var totalPages = (int)Math.Ceiling((double)totalMovies / pageSize);
         ViewBag.TotalPages = totalPages;
@@ -210,11 +232,110 @@ public class HomeController : Controller
             .Select(m => new MovieWithRatingsViewModel
             {
                 Movie = m,
-                Ratings = new List<Ratings>() // Can fetch ratings if needed
+                Ratings = new List<Ratings>() 
             })
             .ToList();
 
+        // Return the view with paged data
         return View(pagedMovies);
+    }
+
+
+    //public async Task<IActionResult> LatestPage()
+    //{
+    //    var titlesResponse = await _supabaseClient.From<Movies>().Get();
+    //    var titles = titlesResponse.Models;
+
+    //    var newestTvShows = titles
+    //        .Where(t => t.Type?.Equals("TV Show", StringComparison.OrdinalIgnoreCase) ?? false) // Only TV Shows
+    //        .OrderByDescending(t => t.ReleaseYear) // Newest shows first
+    //        .Take(9) // Take the first 9 of those, so technicially latest
+    //        .ToList();
+
+    //    var newestMovies = titles
+    //        .Where(t => t.Type?.Equals("TV Show", StringComparison.OrdinalIgnoreCase) ?? false) // Only TV Shows
+    //        .OrderByDescending(t => t.ReleaseYear) 
+    //        .Take(9) 
+    //        .ToList();
+
+    //    var newestDramas = titles
+    //        .Where(t => t.Type?.Equals("TV Show", StringComparison.OrdinalIgnoreCase) ?? false) // Only TV Shows
+    //        .OrderByDescending(t => t.ReleaseYear) 
+    //        .Take(9) 
+    //        .ToList();
+
+    //    var newestComedies = titles
+    //        .Where(t => t.Type?.Equals("TV Show", StringComparison.OrdinalIgnoreCase) ?? false) // Only TV Shows
+    //        .OrderByDescending(t => t.ReleaseYear)
+    //        .Take(9)
+    //        .ToList();
+
+    //    var newestDocu = titles
+    //        .Where(t => t.Type?.Equals("TV Show", StringComparison.OrdinalIgnoreCase) ?? false) // Only TV Shows
+    //        .OrderByDescending(t => t.ReleaseYear) 
+    //        .Take(9) 
+    //        .ToList();
+    //    var viewModel = new LatestContentViewModel
+    //    {
+    //        NewestTvShows = newestTvShows,
+    //        NewestMovies = newestMovies,
+    //        NewestDramas = newestDramas,
+    //        NewestComedies = newestComedies,
+    //        NewestDocu = newestDocu
+    //    };
+
+    //    return View(newTitles);
+    //}
+
+    public async Task<IActionResult> newTitles()
+    {
+        // Fetch all titles (movies and TV shows) from Supabase
+        var titlesResponse = await _supabaseClient.From<Movies>().Get();
+        var titles = titlesResponse.Models;
+
+        // Define categories and their filters dynamically, that way whenever i want to add the rest i can add more
+        var categories = new Dictionary<string, IEnumerable<Movies>>
+    {
+        { "Newest TV Shows", titles
+            .Where(t => t.Type?.Equals("TV Show", StringComparison.OrdinalIgnoreCase) ?? false)
+            .OrderByDescending(t => t.ReleaseYear)
+            .Take(9)
+            .ToList()
+        },
+        { "Newest Movies", titles
+            .Where(t => t.Type?.Equals("Movie", StringComparison.OrdinalIgnoreCase) ?? false)
+            .OrderByDescending(t => t.ReleaseYear)
+            .Take(9)
+            .ToList()
+        },
+        { "Newest Dramas", titles
+            .Where(t => t.ListedIn?.Contains("Dramas", StringComparison.OrdinalIgnoreCase) ?? false)
+            .OrderByDescending(t => t.ReleaseYear)
+            .Take(9)
+            .ToList()
+        },
+        { "Newest Comedies", titles
+            .Where(t => t.ListedIn?.Contains("Comedies", StringComparison.OrdinalIgnoreCase) ?? false)
+            .OrderByDescending(t => t.ReleaseYear)
+            .Take(9)
+            .ToList()
+        },
+        { "Newest Documentaries", titles
+            .Where(t => t.ListedIn?.Contains("Documentaries", StringComparison.OrdinalIgnoreCase) ?? false)
+            .OrderByDescending(t => t.ReleaseYear)
+            .Take(9)
+            .ToList()
+        }
+    };
+
+        // Pass the dynamic dictionary to the view model to make it more simple
+        var viewModel = new LatestContentViewModel
+        {
+            Categories = categories
+        };
+
+        // Render the newTitles.cshtml view in the Home folder as usual
+        return View("newTitles", viewModel);
     }
 
 

@@ -2,12 +2,12 @@
 
 <style>
     .review-box {
-        background-color: #f9f9f9; /* Light gray for separation */
-        border: 1px solid #ddd; /* Subtle border for the box */
-        border-radius: 8px; /* Rounded corners */
-        padding: 20px; /* Add spacing inside the box */
-        max-width: 600px; /* Limit width for better focus */
-        margin: 20px auto; /* Center the box horizontally */
+        background-color: #f9f9f9; 
+        border: 1px solid #ddd;
+        border-radius: 8px;
+        padding: 20px; 
+        max-width: 600px; 
+        margin: 20px auto; 
     }
 
         .review-box h2 {
@@ -17,7 +17,7 @@
         }
 
     .form-group {
-        margin-bottom: 15px; /* Space between form elements */
+        margin-bottom: 15px; /* Space between form elements for readability */
         display: flex;
         flex-direction: column;
         align-items: flex-start; /* Align labels and inputs to the left */
@@ -30,16 +30,16 @@
 
         .form-group input[type="text"],
         .form-group textarea {
-            width: 100%; /* Make inputs and textareas fill the available space */
+            width: 100%; \
             padding: 10px;
             border: 1px solid #ccc; /* Subtle border */
             border-radius: 5px; /* Rounded edges for inputs */
             font-size: 16px;
-            box-sizing: border-box; /* Include padding and border in width */
+            box-sizing: border-box; \
         }
 
         .form-group textarea {
-            height: 100px; /* Bigger box for description */
+            height: 100px; 
             resize: vertical; /* Allow resizing only vertically */
         }
 
@@ -52,7 +52,7 @@
     .star-rating {
         display: flex;
         flex-direction: row-reverse; /* Keep hover functionality */
-        justify-content: flex-start; /* Align stars to the left */
+        justify-content: flex-start; /* Align stars to the left, this works but it breaks itself */
     }
 
         .star-rating input[type="radio"] {

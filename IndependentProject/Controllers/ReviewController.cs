@@ -25,14 +25,14 @@ public class ReviewController : Controller
             return View("Error");
         }
 
-        // Initialize the Ratings model with the movie ID and other test values for debugging
+        // Initialize the Ratings model with the movie ID and other test values for debugging since thers been trouble
         var model = new Ratings
         {
             ShowId = movieId,
-            //UserId = "TestUser", // Set a default value for testing
-            //Rating = 5,          // Set a default rating for testing
-            //Recommend = "Yes",   // Set a recommendation value for testing
-            //Description = "Sample description for debugging." // Add a description for testing
+            //UserId = "TestUser"
+            //Rating = 5,          
+            //Recommend = "Yes",   
+            //Description = "Sample description for debugging." 
             //RatingID = 7
         };
 
@@ -63,7 +63,7 @@ public class ReviewController : Controller
 
         try
         {
-            // Create a new Ratings instance with the parameters
+            // Create a new Ratings instance with the table parameters
             var ratings = new Ratings
             {
                 ShowId = showId,
@@ -92,10 +92,5 @@ public class ReviewController : Controller
             return View("Error");
         }
     }
-
-
-
-
-
 }
 

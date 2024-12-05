@@ -40,7 +40,7 @@
 </head>
 <body>
     <div class="container">
-        <!-- Movie Information -->
+
         <div class="movie-info">
             <h1>@Model.Movie.Title (@Model.Movie.ReleaseYear)</h1>
             <p><strong>Type:</strong> @Model.Movie.Type</p>
@@ -54,7 +54,6 @@
             <p><strong>Description:</strong> @Model.Movie.Description</p>
         </div>
 
-        <!-- Reviews Section -->
         <div class="reviews">
             <a href="@Url.Action("Create", "Review", new { movieId = Model.Movie.ShowId })" class="btn-write-review">Write a Review</a>
 

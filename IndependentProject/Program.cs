@@ -1,6 +1,5 @@
 using Supabase;
 using Newtonsoft.Json;
-using YourProjectNamespace.Services; // Ensure this matches the namespace where RiotApiService is located
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -14,7 +13,6 @@ var supabaseKey = builder.Configuration["Supabase:Key"];
 // Initialize Supabase client
 var supabaseClient = new Client(supabaseUrl, supabaseKey);
 
-// Register the Supabase client as a singleton service
 builder.Services.AddSingleton(supabaseClient);
 
 

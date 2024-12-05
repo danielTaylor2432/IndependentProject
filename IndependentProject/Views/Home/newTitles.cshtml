@@ -1,0 +1,69 @@
+﻿@model LatestContentViewModel
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>IndependentProject - Most Popular Content</title>
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+    <style>
+        .content-main {
+            background-color: #ffffff;
+            padding: 15px;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            margin-bottom: 20px;
+        }
+
+        .movie-item, .tv-show-item {
+            background-color: #ffffff;
+            padding: 15px;
+            border-radius: 5px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            transition: transform 0.2s;
+            margin-bottom: 15px;
+        }
+
+        .movie-item:hover, .tv-show-item:hover {
+            transform: scale(1.02);
+        }
+
+        .movie-item h3, .tv-show-item h3 {
+            font-size: 1.2em;
+            color: #34495e;
+            margin: 0;
+        }
+
+        .movie-item p, .tv-show-item p {
+            margin: 5px 0;
+            color: #7f8c8d;
+        }
+    </style>
+</head>
+<body>
+    <div class="container mt-4">
+        @foreach (var category in Model.Categories)
+        {
+            <h3>@category.Key</h3>
+            <div class="row">
+                @foreach (var item in category.Value)
+                {
+                    <div class="col-md-4">
+                        <a href="@Url.Action("Details", "Home", new { id = item.ShowId })" class="text-decoration-none">
+                            <div class="movie-item">
+                                <h3>@item.Title (@item.ReleaseYear)</h3>
+                                <p><strong>Rating:</strong> @item.Rating</p>
+                                <p><strong>Director:</strong> @item.Director</p>
+                                <p><strong>Description:</strong> @item.Description</p>
+                            </div>
+                        </a>
+                    </div>
+                }
+            </div>
+    }
+    </div>
+    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+
+</html>
