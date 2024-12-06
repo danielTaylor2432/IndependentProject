@@ -25,7 +25,7 @@ public class ReviewController : Controller
             return View("Error");
         }
 
-        // Initialize the Ratings model with the movie ID and other test values for debugging since thers been trouble
+        // Initialize the Ratings model with the movie ID and other test values for debugging since theres been trouble
         var model = new Ratings
         {
             ShowId = movieId,

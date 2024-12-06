@@ -56,15 +56,15 @@ public class HomeController : Controller
             Console.WriteLine($"Rating: ShowId: {rating.ShowId}, Rating Value: {rating.Rating}");
         }
 
-        // Assign average ratings to movies
+        // Assign average ratings to titles
         foreach (var movie in allMovies)
         {
-            // Filter ratings specific to this movie
+            // Filter ratings specific to this title
             var matchedRatings = ratings.Where(r => r.ShowId == movie.ShowId).ToList();
 
             if (matchedRatings.Count > 0)
             {
-                // Debug: Log matched ratings for the current movie
+                // Debug: Log matched ratings for the current title
                 Console.WriteLine($"Matched Ratings for Movie '{movie.Title}' (ShowId: {movie.ShowId}): {string.Join(", ", matchedRatings.Select(r => r.Rating))}");
 
                 // Calculate and assign the average rating
@@ -205,7 +205,6 @@ public class HomeController : Controller
             movies = movies.Where(m => m.Rating == rating).ToList();
         }
 
-        // Apply sorting
         movies = sortBy switch
         {
             "Title" => ascending ? movies.OrderBy(m => m.Title).ToList() : movies.OrderByDescending(m => m.Title).ToList(),
@@ -240,52 +239,6 @@ public class HomeController : Controller
         return View(pagedMovies);
     }
 
-
-    //public async Task<IActionResult> LatestPage()
-    //{
-    //    var titlesResponse = await _supabaseClient.From<Movies>().Get();
-    //    var titles = titlesResponse.Models;
-
-    //    var newestTvShows = titles
-    //        .Where(t => t.Type?.Equals("TV Show", StringComparison.OrdinalIgnoreCase) ?? false) // Only TV Shows
-    //        .OrderByDescending(t => t.ReleaseYear) // Newest shows first
-    //        .Take(9) // Take the first 9 of those, so technicially latest
-    //        .ToList();
-
-    //    var newestMovies = titles
-    //        .Where(t => t.Type?.Equals("TV Show", StringComparison.OrdinalIgnoreCase) ?? false) // Only TV Shows
-    //        .OrderByDescending(t => t.ReleaseYear) 
-    //        .Take(9) 
-    //        .ToList();
-
-    //    var newestDramas = titles
-    //        .Where(t => t.Type?.Equals("TV Show", StringComparison.OrdinalIgnoreCase) ?? false) // Only TV Shows
-    //        .OrderByDescending(t => t.ReleaseYear) 
-    //        .Take(9) 
-    //        .ToList();
-
-    //    var newestComedies = titles
-    //        .Where(t => t.Type?.Equals("TV Show", StringComparison.OrdinalIgnoreCase) ?? false) // Only TV Shows
-    //        .OrderByDescending(t => t.ReleaseYear)
-    //        .Take(9)
-    //        .ToList();
-
-    //    var newestDocu = titles
-    //        .Where(t => t.Type?.Equals("TV Show", StringComparison.OrdinalIgnoreCase) ?? false) // Only TV Shows
-    //        .OrderByDescending(t => t.ReleaseYear) 
-    //        .Take(9) 
-    //        .ToList();
-    //    var viewModel = new LatestContentViewModel
-    //    {
-    //        NewestTvShows = newestTvShows,
-    //        NewestMovies = newestMovies,
-    //        NewestDramas = newestDramas,
-    //        NewestComedies = newestComedies,
-    //        NewestDocu = newestDocu
-    //    };
-
-    //    return View(newTitles);
-    //}
 
     public async Task<IActionResult> newTitles()
     {
